@@ -90,8 +90,7 @@ app.openapi(route, (c) => {
   );
 });
 
-// The OpenAPI documentation will be available at /doc
-app.doc('/doc', {
+app.doc('/doc.json', {
   openapi: '3.0.0',
   info: {
     version: '1.0.0',
@@ -102,7 +101,7 @@ app.doc('/doc', {
 app.get(
   '/',
   swaggerUI({
-    url: '/doc',
+    url: '/doc.json',
   }),
 );
 
