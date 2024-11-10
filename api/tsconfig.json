@@ -1,7 +1,6 @@
 {
   "extends": "@SeokminHong/configs/tsconfig/cloudflare",
   "compilerOptions": {
-    "baseUrl": "src",
     "pretty": true,
     "rootDir": ".",
     "outDir": "",
