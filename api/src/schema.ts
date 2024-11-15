@@ -20,7 +20,7 @@ export const users = sqliteTable('users', {
   createdAt,
   updatedAt,
   name: text().notNull(),
-  handle: text().notNull(),
+  handle: text().notNull().unique(),
   passwordHash: blob({ mode: 'buffer' }).notNull(),
 });
 
