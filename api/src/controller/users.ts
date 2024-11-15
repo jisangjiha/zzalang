@@ -16,7 +16,6 @@ const MIN_NAME_LENGTH = 1;
 
 const ALLOWED_PASSWORD_CHARACTERS = /^[\w!"#$%&'()*+,./:;<=>?@[\\\]^{|}-]*$/u;
 const ALLOWED_HANDLE_CHARACTERS = /^[\w-]*$/u;
-const ALLOWED_NAME_CHARACTERS = /^[\w-]*$/u;
 
 export async function register(
   env: Env,
@@ -196,19 +195,28 @@ function validateHandle(
       message: `Handle must be at least ${MIN_HANDLE_LENGTH} characters`,
     };
   }
+  // Handle cannot consist of only numbers
+  if (/^\d+$/u.test(handle)) {
+    return {
+      success: false,
+      error: ResponseError.BadRequest,
+      message: 'Handle must contain letters or special characters',
+    };
+  }
+  // Handle cannot start or end with a hyphen
+  if (/^-|-$/u.test(handle)) {
+    return {
+      success: false,
+      error: ResponseError.BadRequest,
+      message: 'Handle cannot start or end with a hyphen',
+    };
+  }
   return { success: true, data: undefined };
 }
 
 function validateName(
   name: string,
 ): Result<undefined, typeof ResponseError.BadRequest> {
-  if (!ALLOWED_NAME_CHARACTERS.test(name)) {
-    return {
-      success: false,
-      error: ResponseError.BadRequest,
-      message: 'Name contains invalid characters',
-    };
-  }
   if (name.length < MIN_NAME_LENGTH) {
     return {
       success: false,
