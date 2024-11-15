@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { blob, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 const id = integer().primaryKey({ autoIncrement: true });
 
@@ -20,7 +20,8 @@ export const users = sqliteTable('users', {
   createdAt,
   updatedAt,
   name: text().notNull(),
-  email: text().notNull(),
+  handle: text().notNull(),
+  passwordHash: blob({ mode: 'buffer' }).notNull(),
 });
 
 export const posts = sqliteTable('posts', {
