@@ -2,29 +2,21 @@ import { Buffer } from 'node:buffer';
 import { drizzle } from 'drizzle-orm/d1';
 import z from 'zod';
 
+import { UserSchema } from '~/models/users';
 import { users } from '~/schema';
 import { hash } from '~/utils/auth';
-import { encodeId } from '~/utils/id';
 import type { Result } from '~/utils/result';
 import { ResponseError } from '~/utils/result';
-
-export const USERS_KEY = 1;
-
-export const UserSchema = z
-  .object({
-    id: z.string(),
-    name: z.string(),
-    handle: z.string(),
-    createdAt: z.date(),
-    updatedAt: z.date(),
-  })
-  .openapi('User');
 
 export type User = z.infer<typeof UserSchema>;
 
 const MIN_PASSWORD_LENGTH = 8;
 const MIN_HANDLE_LENGTH = 3;
 const MIN_NAME_LENGTH = 1;
+
+const ALLOWED_PASSWORD_CHARACTERS = /^[\w!"#$%&'()*+,./:;<=>?@[\\\]^{|}-]*$/u;
+const ALLOWED_HANDLE_CHARACTERS = /^[\w-]*$/u;
+const ALLOWED_NAME_CHARACTERS = /^[\w-]*$/u;
 
 export async function register(
   env: Env,
@@ -39,7 +31,12 @@ export async function register(
     password: string;
     passwordConfirmation: string;
   },
-): Promise<Result<User>> {
+): Promise<
+  Result<
+    User,
+    typeof ResponseError.BadRequest | typeof ResponseError.InternalServerError
+  >
+> {
   const passwordValidation = validatePassword({
     name,
     handle,
@@ -61,27 +58,67 @@ export async function register(
   const passwordHash = await hash({ password, salt: env.PASSWORD_SALT });
 
   const db = drizzle(env.DB);
-  const [user] = await db
-    .insert(users)
-    .values({
-      name,
-      handle,
-      passwordHash: Buffer.from(passwordHash),
-    })
-    .returning();
-
-  if (!user) {
-    return {
-      success: false,
-      error: ResponseError.InternalServerError,
-      message: 'Failed to create user',
-    };
+  async function insertUser(): Promise<
+    Result<
+      User,
+      typeof ResponseError.BadRequest | typeof ResponseError.InternalServerError
+    >
+  > {
+    try {
+      const [user] = await db
+        .insert(users)
+        .values({
+          name,
+          handle,
+          passwordHash: Buffer.from(passwordHash),
+        })
+        .returning();
+      if (!user) {
+        return {
+          success: false,
+          error: ResponseError.InternalServerError,
+          message: 'Failed to create user',
+        };
+      }
+      return { success: true, data: user };
+    } catch (error: unknown) {
+      if (!(error instanceof Error)) {
+        return {
+          success: false,
+          error: ResponseError.InternalServerError,
+          message: 'Failed to create user',
+        };
+      }
+      const { cause: innerError } = error;
+      if (
+        innerError instanceof Error &&
+        innerError.message ===
+          'UNIQUE constraint failed: users.handle: SQLITE_CONSTRAINT'
+      ) {
+        return {
+          success: false,
+          error: ResponseError.BadRequest,
+          message: 'Handle already exists',
+        };
+      }
+      return {
+        success: false,
+        error: ResponseError.InternalServerError,
+        message: 'Failed to create user',
+      };
+    }
   }
 
+  const insertUserResult = await insertUser();
+
+  if (!insertUserResult.success) {
+    return insertUserResult;
+  }
+
+  const user = insertUserResult.data;
+
   const { success, data, error } = UserSchema.safeParse({
-    id: encodeId(USERS_KEY, user.id),
-    name,
-    handle,
+    ...user,
     createdAt: new Date(user.createdAt),
     updatedAt: new Date(user.updatedAt),
   });
@@ -109,7 +146,14 @@ function validatePassword({
   handle: string;
   password: string;
   passwordConfirmation: string;
-}): Result<undefined> {
+}): Result<undefined, typeof ResponseError.BadRequest> {
+  if (!ALLOWED_PASSWORD_CHARACTERS.test(password)) {
+    return {
+      success: false,
+      error: ResponseError.BadRequest,
+      message: 'Password contains invalid characters',
+    };
+  }
   if (password.length < MIN_PASSWORD_LENGTH) {
     return {
       success: false,
@@ -135,7 +179,16 @@ function validatePassword({
   return { success: true, data: undefined };
 }
 
-function validateHandle(handle: string): Result<undefined> {
+function validateHandle(
+  handle: string,
+): Result<undefined, typeof ResponseError.BadRequest> {
+  if (!ALLOWED_HANDLE_CHARACTERS.test(handle)) {
+    return {
+      success: false,
+      error: ResponseError.BadRequest,
+      message: 'Handle contains invalid characters',
+    };
+  }
   if (handle.length < MIN_HANDLE_LENGTH) {
     return {
       success: false,
@@ -146,7 +199,16 @@ function validateHandle(handle: string): Result<undefined> {
   return { success: true, data: undefined };
 }
 
-function validateName(name: string): Result<undefined> {
+function validateName(
+  name: string,
+): Result<undefined, typeof ResponseError.BadRequest> {
+  if (!ALLOWED_NAME_CHARACTERS.test(name)) {
+    return {
+      success: false,
+      error: ResponseError.BadRequest,
+      message: 'Name contains invalid characters',
+    };
+  }
   if (name.length < MIN_NAME_LENGTH) {
     return {
       success: false,

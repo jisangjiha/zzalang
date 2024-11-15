@@ -1,6 +1,8 @@
 import { swaggerUI } from '@hono/swagger-ui';
 import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi';
-import type { HonoEnv } from 'types';
+
+import handleUsers from './routes/users';
+import type { HonoEnv } from './types';
 
 const ParamsSchema = z.object({
   id: z
@@ -27,7 +29,7 @@ const UserSchema = z
       example: 42,
     }),
   })
-  .openapi('User');
+  .openapi('TestUser');
 
 const route = createRoute({
   method: 'get',
@@ -62,7 +64,19 @@ const route = createRoute({
   ],
 });
 
-const app = new OpenAPIHono<HonoEnv>();
+const app = new OpenAPIHono<HonoEnv>({
+  defaultHook: (result, c) => {
+    if (!result.success) {
+      return c.json(
+        {
+          message: result.error.errors.map((e) => e.message).join(', '),
+        },
+        400,
+      );
+    }
+  },
+});
+
 app.openAPIRegistry.registerComponent('securitySchemes', 'bearerAuth', {
   type: 'http',
   scheme: 'bearer',
@@ -89,6 +103,8 @@ app.openapi(route, (c) => {
     200,
   );
 });
+
+handleUsers(app);
 
 app.doc('/doc.json', {
   openapi: '3.0.0',

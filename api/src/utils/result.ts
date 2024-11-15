@@ -1,13 +1,15 @@
-export enum ResponseError {
-  BadRequest = 400,
-  Unauthorized = 401,
-  Forbidden = 403,
-  NotFound = 404,
+export const ResponseError = {
+  BadRequest: 400,
+  Unauthorized: 401,
+  Forbidden: 403,
+  NotFound: 404,
 
-  InternalServerError = 500,
-}
+  InternalServerError: 500,
+} as const;
 
-export type Result<T> =
+export type ResponseError = (typeof ResponseError)[keyof typeof ResponseError];
+
+export type Result<T, E = ResponseError> =
   | {
       data: T;
       success: true;
@@ -17,6 +19,6 @@ export type Result<T> =
   | {
       data?: never;
       success: false;
-      error: ResponseError;
+      error: E;
       message?: string;
     };
