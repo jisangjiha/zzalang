@@ -10,7 +10,8 @@ compatibility_flags = ["nodejs_compat"]
 [observability]
 enabled = true
 
-[[kv_namespaces]]
-binding = "POSTS"
-id = "db604d9231c74083ad177e0bffda3e7b"
-preview_id = "475101c5054d4b978526ebfce19668ad"
+[[d1_databases]]
+binding = "DB"
+database_name = "board"
+database_id = "230391a4-a929-40fe-b0a7-1c194f8fe0f0"
+migrations_dir = "drizzle"
