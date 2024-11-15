@@ -1,14 +1,12 @@
 import { Buffer } from 'node:buffer';
 import { drizzle } from 'drizzle-orm/d1';
-import z from 'zod';
 
+import type { User } from '~/models/users';
 import { UserSchema } from '~/models/users';
 import { users } from '~/schema';
 import { hash } from '~/utils/auth';
 import type { Result } from '~/utils/result';
 import { ResponseError } from '~/utils/result';
-
-export type User = z.infer<typeof UserSchema>;
 
 const MIN_PASSWORD_LENGTH = 8;
 const MIN_HANDLE_LENGTH = 3;

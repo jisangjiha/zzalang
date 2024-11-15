@@ -12,6 +12,8 @@ export const UserSchema = z.object({
   updatedAt: z.date(),
 });
 
+export type User = z.infer<typeof UserSchema>;
+
 export const UserResponseSchema = z
   .object({
     id: z.string(),
