@@ -1,0 +1,7 @@
+{
+  "extends": "@SeokminHong/configs/tsconfig/node",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": ["*.ts"]
+}
