@@ -1,6 +1,15 @@
 // @ts-check
 import config from '@seokminhong/configs/eslint';
 
-export default config({
-  envs: ['browser', 'node'],
-});
+const configs = [
+  ...config({
+    envs: ['browser', 'node'],
+  }),
+  {
+    rules: {
+      'no-console': ['error', { allow: ['warn', 'error'] }],
+    },
+  },
+];
+
+export default configs;
