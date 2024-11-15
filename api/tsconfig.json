@@ -1,9 +1,13 @@
 {
-  "extends": "@SeokminHong/configs/tsconfig/cloudflare",
+  "extends": [
+    "@SeokminHong/configs/tsconfig/cloudflare",
+    "@SeokminHong/configs/tsconfig/alias"
+  ],
   "compilerOptions": {
     "pretty": true,
     "rootDir": ".",
     "outDir": "",
+    "baseUrl": ".",
     "types": [
       "@types/node",
       "@types/service-worker-mock",
