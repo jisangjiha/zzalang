@@ -12,7 +12,7 @@ const createdAt = integer({
 const updatedAt = integer({
   mode: 'timestamp',
 })
-  .$onUpdateFn(() => sql`(unixepoch())`)
+  .$onUpdateFn(() => new Date())
   .notNull();
 
 export const users = sqliteTable('users', {
