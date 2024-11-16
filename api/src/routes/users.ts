@@ -68,7 +68,7 @@ export default function handleUsers(app: OpenAPIHono<HonoEnv>) {
         data: user,
         error,
         message,
-      } = await register(c.env, {
+      } = await register(c, {
         name,
         handle,
         password,
@@ -143,7 +143,7 @@ export default function handleUsers(app: OpenAPIHono<HonoEnv>) {
     }),
     async (c) => {
       const { handle, password } = c.req.valid('json');
-      const { success, data, error, message } = await signIn(c.env, {
+      const { success, data, error, message } = await signIn(c, {
         handle,
         password,
       });

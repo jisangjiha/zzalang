@@ -2,11 +2,14 @@ import { Buffer } from 'node:buffer';
 import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
 import * as jose from 'jose';
+import z from 'zod';
 
 import type { User } from '~/models/users';
 import { decodeUserId, encodeUserId, UserSchema } from '~/models/users';
 import { users } from '~/schema';
+import type { HonoContext } from '~/types';
 import { hash } from '~/utils/auth';
+import { createJsonTranscoder } from '~/utils/json';
 import type { Result } from '~/utils/result';
 import { ResponseError } from '~/utils/result';
 
@@ -19,8 +22,14 @@ const ALLOWED_HANDLE_CHARACTERS = /^[\w-]*$/u;
 
 const TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
 
+const TokenSchema = z.object({
+  userId: z.number(),
+});
+
+const tokenTranscoder = createJsonTranscoder(TokenSchema);
+
 export async function register(
-  env: Env,
+  { env }: HonoContext,
   {
     name,
     handle,
@@ -138,7 +147,7 @@ export async function register(
 }
 
 export async function signIn(
-  env: Env,
+  { env, executionCtx }: HonoContext,
   {
     handle,
     password,
@@ -180,15 +189,24 @@ export async function signIn(
     };
   }
 
+  const now = Date.now();
+  const expiration = now + TOKEN_EXPIRATION;
+
   const sign = new jose.SignJWT({
     sub: encodeUserId(user.id),
-    iat: Date.now(),
-    exp: Date.now() + TOKEN_EXPIRATION,
+    iat: now,
+    exp: expiration,
   });
 
   const token = await sign
     .setProtectedHeader({ alg: 'HS256' })
     .sign(new TextEncoder().encode(env.JWT_SECRET));
+
+  executionCtx.waitUntil(
+    env.TOKENS.put(token, tokenTranscoder.encode({ userId: user.id }), {
+      expiration: expiration / 1000,
+    }),
+  );
 
   return {
     success: true,
@@ -208,6 +226,39 @@ export async function verify(
     typeof ResponseError.Unauthorized | typeof ResponseError.BadRequest
   >
 > {
+  async function getValidToken(): Promise<
+    Result<z.infer<typeof TokenSchema>, typeof ResponseError.Unauthorized>
+  > {
+    try {
+      const validToken = await env.TOKENS.get(token);
+      if (validToken === null) {
+        return {
+          success: false,
+          error: ResponseError.Unauthorized,
+          message: 'Invalid token',
+        };
+      }
+      return {
+        success: true,
+        data: tokenTranscoder.decode(validToken),
+      };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Failed to verify token', error);
+      }
+      return {
+        success: false,
+        error: ResponseError.Unauthorized,
+        message: 'Invalid token',
+      };
+    }
+  }
+
+  const tokenResult = await getValidToken();
+  if (!tokenResult.success) {
+    return tokenResult;
+  }
+
   const db = drizzle(env.DB);
   const { payload } = await jose.jwtVerify(
     token,
@@ -242,7 +293,7 @@ export async function verify(
     .where(eq(users.id, userIdResult.data))
     .execute();
 
-  if (!user) {
+  if (!user || tokenResult.data.userId !== user.id) {
     return {
       success: false,
       error: ResponseError.Unauthorized,
