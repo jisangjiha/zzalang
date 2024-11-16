@@ -218,8 +218,8 @@ export async function signIn(
 }
 
 export async function verify(
-  env: Env,
-  token: string,
+  { env }: HonoContext,
+  { token }: { token: string },
 ): Promise<
   Result<
     User,
@@ -232,6 +232,7 @@ export async function verify(
     try {
       const validToken = await env.TOKENS.get(token);
       if (validToken === null) {
+        console.error('Token not found');
         return {
           success: false,
           error: ResponseError.Unauthorized,
@@ -266,6 +267,7 @@ export async function verify(
   );
 
   if (payload.sub === undefined) {
+    console.error('JWT payload does not contain sub');
     return {
       success: false,
       error: ResponseError.BadRequest,
@@ -280,6 +282,7 @@ export async function verify(
     typeof userIdResult.data !== 'number' ||
     userIdResult.data <= 0
   ) {
+    console.error('Invalid user ID', userIdResult);
     return {
       success: false,
       error: ResponseError.BadRequest,
@@ -294,6 +297,7 @@ export async function verify(
     .execute();
 
   if (!user || tokenResult.data.userId !== user.id) {
+    console.error('User not found or token does not match', user, tokenResult);
     return {
       success: false,
       error: ResponseError.Unauthorized,
@@ -302,6 +306,20 @@ export async function verify(
   }
 
   return { success: true, data: user };
+}
+
+export async function signOut(
+  env: Env,
+  token: string,
+): Promise<Result<undefined, typeof ResponseError.Unauthorized>> {
+  return env.TOKENS.delete(token).then(
+    () => ({ success: true, data: undefined }),
+    () => ({
+      success: false,
+      error: ResponseError.Unauthorized,
+      message: 'Failed to sign out',
+    }),
+  );
 }
 
 function validatePassword({
