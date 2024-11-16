@@ -276,87 +276,6 @@ export default function handleUsers(app: OpenAPIHono<HonoEnv>) {
 
   app.openapi(
     createRoute({
-      method: 'get',
-      path: '/me',
-      description: 'Retrieve the current user',
-      tags: ['users'],
-      summary: 'Retrieve the current user',
-      responses: {
-        200: {
-          content: {
-            'application/json': {
-              schema: UserResponseSchema,
-            },
-          },
-          description: 'Retrieve the current user',
-        },
-        [ResponseError.BadRequest]: {
-          content: {
-            'application/json': {
-              schema: z.object({
-                message: z.string().optional(),
-              }),
-            },
-          },
-          description: 'Invalid input',
-        },
-        [ResponseError.Unauthorized]: {
-          content: {
-            'application/json': {
-              schema: z.object({
-                message: z.string().optional(),
-              }),
-            },
-          },
-          description: 'Unauthorized',
-        },
-      },
-      security: [
-        {
-          bearerAuth: [],
-        },
-      ],
-    }),
-    async (c) => {
-      const bearerToken = c.req.header('Authorization');
-      if (bearerToken === undefined) {
-        return c.json(
-          {
-            message: 'Unauthorized',
-          },
-          ResponseError.Unauthorized,
-        );
-      }
-
-      const tokenResult = getToken(bearerToken);
-      if (!tokenResult.success) {
-        return c.json(
-          {
-            message: 'Invalid token',
-          },
-          ResponseError.Unauthorized,
-        );
-      }
-
-      const { success, data, error, message } = await verify(c, {
-        token: tokenResult.data,
-      });
-
-      if (!success) {
-        return c.json(
-          {
-            message,
-          },
-          error,
-        );
-      }
-
-      return c.json(encodeUser(data), 200);
-    },
-  );
-
-  app.openapi(
-    createRoute({
       method: 'post',
       path: '/sign-out',
       description: 'Sign out',
@@ -444,20 +363,10 @@ export default function handleUsers(app: OpenAPIHono<HonoEnv>) {
   app.openapi(
     createRoute({
       method: 'get',
-      path: '/users/{id}',
-      description: 'Retrieve a user by ID',
+      path: '/me',
+      description: 'Retrieve the current user',
       tags: ['users'],
-      summary: 'Retrieve a user by ID',
-      request: {
-        params: z.object({
-          id: z.string().openapi({
-            param: {
-              name: 'id',
-              in: 'path',
-            },
-          }),
-        }),
-      },
+      summary: 'Retrieve the current user',
       responses: {
         200: {
           content: {
@@ -465,9 +374,9 @@ export default function handleUsers(app: OpenAPIHono<HonoEnv>) {
               schema: UserResponseSchema,
             },
           },
-          description: 'Retrieve the user',
+          description: 'Retrieve the current user',
         },
-        404: {
+        [ResponseError.BadRequest]: {
           content: {
             'application/json': {
               schema: z.object({
@@ -475,14 +384,48 @@ export default function handleUsers(app: OpenAPIHono<HonoEnv>) {
               }),
             },
           },
-          description: 'User not found',
+          description: 'Invalid input',
+        },
+        [ResponseError.Unauthorized]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Unauthorized',
         },
       },
+      security: [
+        {
+          bearerAuth: [],
+        },
+      ],
     }),
     async (c) => {
-      const { id } = c.req.valid('param');
-      const { success, data, error, message } = await getUser(c, {
-        userId: id,
+      const bearerToken = c.req.header('Authorization');
+      if (bearerToken === undefined) {
+        return c.json(
+          {
+            message: 'Unauthorized',
+          },
+          ResponseError.Unauthorized,
+        );
+      }
+
+      const tokenResult = getToken(bearerToken);
+      if (!tokenResult.success) {
+        return c.json(
+          {
+            message: 'Invalid token',
+          },
+          ResponseError.Unauthorized,
+        );
+      }
+
+      const { success, data, error, message } = await verify(c, {
+        token: tokenResult.data,
       });
 
       if (!success) {
@@ -594,6 +537,63 @@ export default function handleUsers(app: OpenAPIHono<HonoEnv>) {
         handle,
         password,
         passwordConfirmation,
+      });
+
+      if (!success) {
+        return c.json(
+          {
+            message,
+          },
+          error,
+        );
+      }
+
+      return c.json(encodeUser(data), 200);
+    },
+  );
+
+  app.openapi(
+    createRoute({
+      method: 'get',
+      path: '/users/{id}',
+      description: 'Retrieve a user by ID',
+      tags: ['users'],
+      summary: 'Retrieve a user by ID',
+      request: {
+        params: z.object({
+          id: z.string().openapi({
+            param: {
+              name: 'id',
+              in: 'path',
+            },
+          }),
+        }),
+      },
+      responses: {
+        200: {
+          content: {
+            'application/json': {
+              schema: UserResponseSchema,
+            },
+          },
+          description: 'Retrieve the user',
+        },
+        404: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'User not found',
+        },
+      },
+    }),
+    async (c) => {
+      const { id } = c.req.valid('param');
+      const { success, data, error, message } = await getUser(c, {
+        userId: id,
       });
 
       if (!success) {
