@@ -1,6 +1,7 @@
 import z from 'zod';
 
-import { encodeId } from '~/utils/id';
+import { decodeId, encodeId } from '~/utils/id';
+import type { Result } from '~/utils/result';
 
 const USERS_KEY = 1;
 
@@ -24,8 +25,12 @@ export const UserResponseSchema = z
   })
   .openapi('User');
 
-export function getUserId(id: number) {
+export function encodeUserId(id: number) {
   return encodeId(USERS_KEY, id);
+}
+
+export function decodeUserId(id: string): Result<number> {
+  return decodeId(USERS_KEY, id);
 }
 
 export const encodeUser = z

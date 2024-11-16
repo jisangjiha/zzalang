@@ -4,7 +4,7 @@ import { drizzle } from 'drizzle-orm/d1';
 import * as jose from 'jose';
 
 import type { User } from '~/models/users';
-import { getUserId, UserSchema } from '~/models/users';
+import { decodeUserId, encodeUserId, UserSchema } from '~/models/users';
 import { users } from '~/schema';
 import { hash } from '~/utils/auth';
 import type { Result } from '~/utils/result';
@@ -181,7 +181,7 @@ export async function signIn(
   }
 
   const sign = new jose.SignJWT({
-    sub: getUserId(user.id),
+    sub: encodeUserId(user.id),
     iat: Date.now(),
     exp: Date.now() + TOKEN_EXPIRATION,
   });
@@ -197,6 +197,60 @@ export async function signIn(
       token,
     },
   };
+}
+
+export async function verify(
+  env: Env,
+  token: string,
+): Promise<
+  Result<
+    User,
+    typeof ResponseError.Unauthorized | typeof ResponseError.BadRequest
+  >
+> {
+  const db = drizzle(env.DB);
+  const { payload } = await jose.jwtVerify(
+    token,
+    new TextEncoder().encode(env.JWT_SECRET),
+  );
+
+  if (payload.sub === undefined) {
+    return {
+      success: false,
+      error: ResponseError.BadRequest,
+      message: 'Invalid token',
+    };
+  }
+
+  const userIdResult = decodeUserId(payload.sub);
+
+  if (
+    !userIdResult.success ||
+    typeof userIdResult.data !== 'number' ||
+    userIdResult.data <= 0
+  ) {
+    return {
+      success: false,
+      error: ResponseError.BadRequest,
+      message: 'Invalid token',
+    };
+  }
+
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, userIdResult.data))
+    .execute();
+
+  if (!user) {
+    return {
+      success: false,
+      error: ResponseError.Unauthorized,
+      message: 'Invalid token',
+    };
+  }
+
+  return { success: true, data: user };
 }
 
 function validatePassword({

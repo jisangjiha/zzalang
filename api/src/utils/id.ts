@@ -12,23 +12,16 @@ export function encodeId(key: number, id: number): string {
   return sqids.encode([key, id]);
 }
 
-export function decodeId(encoded: string): Result<[number, number]> {
-  const ret = sqids.decode(encoded);
+export function decodeId(key: number, encoded: string): Result<number> {
+  const [sqkey, sqid, ...rest] = sqids.decode(encoded);
 
-  if (!isTuple<number>(ret) || ret.some((x) => typeof x !== 'number')) {
+  if (rest.length > 0 || sqkey !== key || typeof sqid !== 'number') {
     return {
       success: false,
       error: ResponseError.BadRequest,
-      message: 'Invalid ID',
+      message: 'Invalid id',
     };
   }
 
-  return {
-    success: true,
-    data: ret,
-  };
-}
-
-function isTuple<T>(x: unknown): x is [T, T] {
-  return Array.isArray(x) && x.length === 2;
+  return { success: true, data: sqid };
 }
