@@ -309,7 +309,7 @@ export async function verify(
 }
 
 export async function signOut(
-  env: Env,
+  { env }: HonoContext,
   token: string,
 ): Promise<Result<undefined, typeof ResponseError.Unauthorized>> {
   return env.TOKENS.delete(token).then(

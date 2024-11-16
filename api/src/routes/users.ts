@@ -2,7 +2,7 @@ import type { OpenAPIHono } from '@hono/zod-openapi';
 import { createRoute } from '@hono/zod-openapi';
 import z from 'zod';
 
-import { register, signIn, verify } from '~/controller/users';
+import { register, signIn, signOut, verify } from '~/controller/users';
 import { encodeUser, UserResponseSchema } from '~/models/users';
 import type { HonoEnv } from '~/types';
 import { getToken } from '~/utils/auth';
@@ -92,7 +92,7 @@ export default function handleUsers(app: OpenAPIHono<HonoEnv>) {
   app.openapi(
     createRoute({
       method: 'post',
-      path: '/users/sign-in',
+      path: '/sign-in',
       description: 'Sign in',
       tags: ['users'],
       summary: 'Sign in',
@@ -246,6 +246,92 @@ export default function handleUsers(app: OpenAPIHono<HonoEnv>) {
       }
 
       return c.json(encodeUser(data), 200);
+    },
+  );
+
+  app.openapi(
+    createRoute({
+      method: 'post',
+      path: '/sign-out',
+      description: 'Sign out',
+      tags: ['users'],
+      summary: 'Sign out',
+      responses: {
+        200: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string(),
+              }),
+            },
+          },
+          description: 'Sign out',
+        },
+        [ResponseError.BadRequest]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Invalid input',
+        },
+        [ResponseError.Unauthorized]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Unauthorized',
+        },
+      },
+      security: [
+        {
+          bearerAuth: [],
+        },
+      ],
+    }),
+    async (c) => {
+      const bearerToken = c.req.header('Authorization');
+      if (bearerToken === undefined) {
+        return c.json(
+          {
+            message: 'Unauthorized',
+          },
+          ResponseError.Unauthorized,
+        );
+      }
+
+      const tokenResult = getToken(bearerToken);
+      if (!tokenResult.success) {
+        return c.json(
+          {
+            message: 'Invalid token',
+          },
+          ResponseError.Unauthorized,
+        );
+      }
+
+      const { success, error, message } = await signOut(c, tokenResult.data);
+
+      if (!success) {
+        return c.json(
+          {
+            message,
+          },
+          error,
+        );
+      }
+
+      return c.json(
+        {
+          message: 'Signed out',
+        },
+        200,
+      );
     },
   );
 }
