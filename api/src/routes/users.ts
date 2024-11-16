@@ -2,7 +2,15 @@ import type { OpenAPIHono } from '@hono/zod-openapi';
 import { createRoute } from '@hono/zod-openapi';
 import z from 'zod';
 
-import { register, signIn, signOut, verify } from '~/controller/users';
+import {
+  getUser,
+  register,
+  signIn,
+  signOut,
+  unregister,
+  updateMyInfo,
+  verify,
+} from '~/controller/users';
 import { encodeUser, UserResponseSchema } from '~/models/users';
 import type { HonoEnv } from '~/types';
 import { getToken } from '~/utils/auth';
@@ -86,6 +94,104 @@ export default function handleUsers(app: OpenAPIHono<HonoEnv>) {
       }
 
       return c.json(encodeUser(user), 200);
+    },
+  );
+
+  app.openapi(
+    createRoute({
+      method: 'post',
+      path: '/unregister',
+      description: 'Unregister the current user',
+      tags: ['users'],
+      summary: 'Unregister the current user',
+      responses: {
+        200: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string(),
+              }),
+            },
+          },
+          description: 'Unregister the current user',
+        },
+        [ResponseError.BadRequest]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Invalid input',
+        },
+        [ResponseError.Unauthorized]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Unauthorized',
+        },
+        [ResponseError.InternalServerError]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Internal server error',
+        },
+      },
+      security: [
+        {
+          bearerAuth: [],
+        },
+      ],
+    }),
+    async (c) => {
+      const bearerToken = c.req.header('Authorization');
+      if (bearerToken === undefined) {
+        return c.json(
+          {
+            message: 'Unauthorized',
+          },
+          ResponseError.Unauthorized,
+        );
+      }
+
+      const tokenResult = getToken(bearerToken);
+      if (!tokenResult.success) {
+        return c.json(
+          {
+            message: 'Invalid token',
+          },
+          ResponseError.Unauthorized,
+        );
+      }
+
+      const { success, error, message } = await unregister(c, {
+        token: tokenResult.data,
+      });
+
+      if (!success) {
+        return c.json(
+          {
+            message,
+          },
+          error,
+        );
+      }
+
+      return c.json(
+        {
+          message: 'Unregistered',
+        },
+        200,
+      );
     },
   );
 
@@ -332,6 +438,174 @@ export default function handleUsers(app: OpenAPIHono<HonoEnv>) {
         },
         200,
       );
+    },
+  );
+
+  app.openapi(
+    createRoute({
+      method: 'get',
+      path: '/users/{id}',
+      description: 'Retrieve a user by ID',
+      tags: ['users'],
+      summary: 'Retrieve a user by ID',
+      request: {
+        params: z.object({
+          id: z.string().openapi({
+            param: {
+              name: 'id',
+              in: 'path',
+            },
+          }),
+        }),
+      },
+      responses: {
+        200: {
+          content: {
+            'application/json': {
+              schema: UserResponseSchema,
+            },
+          },
+          description: 'Retrieve the user',
+        },
+        404: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'User not found',
+        },
+      },
+    }),
+    async (c) => {
+      const { id } = c.req.valid('param');
+      const { success, data, error, message } = await getUser(c, {
+        userId: id,
+      });
+
+      if (!success) {
+        return c.json(
+          {
+            message,
+          },
+          error,
+        );
+      }
+
+      return c.json(encodeUser(data), 200);
+    },
+  );
+
+  app.openapi(
+    createRoute({
+      method: 'patch',
+      path: '/me',
+      description: 'Update the current user',
+      tags: ['users'],
+      summary: 'Update the current user',
+      request: {
+        body: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                name: z.string().optional(),
+                handle: z.string().optional(),
+                password: z.string().optional(),
+                passwordConfirmation: z.string().optional(),
+              }),
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          content: {
+            'application/json': {
+              schema: UserResponseSchema,
+            },
+          },
+          description: 'Update the current user',
+        },
+        [ResponseError.BadRequest]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Invalid input',
+        },
+        [ResponseError.Unauthorized]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Unauthorized',
+        },
+        [ResponseError.InternalServerError]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Internal server error',
+        },
+      },
+      security: [
+        {
+          bearerAuth: [],
+        },
+      ],
+    }),
+    async (c) => {
+      const bearerToken = c.req.header('Authorization');
+      if (bearerToken === undefined) {
+        return c.json(
+          {
+            message: 'Unauthorized',
+          },
+          ResponseError.Unauthorized,
+        );
+      }
+
+      const tokenResult = getToken(bearerToken);
+      if (!tokenResult.success) {
+        return c.json(
+          {
+            message: 'Invalid token',
+          },
+          ResponseError.Unauthorized,
+        );
+      }
+
+      const { name, handle, password, passwordConfirmation } =
+        c.req.valid('json');
+      const { success, data, error, message } = await updateMyInfo(c, {
+        token: tokenResult.data,
+        name,
+        handle,
+        password,
+        passwordConfirmation,
+      });
+
+      if (!success) {
+        return c.json(
+          {
+            message,
+          },
+          error,
+        );
+      }
+
+      return c.json(encodeUser(data), 200);
     },
   );
 }

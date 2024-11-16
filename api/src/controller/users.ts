@@ -125,25 +125,7 @@ export async function register(
     return insertUserResult;
   }
 
-  const user = insertUserResult.data;
-
-  const { success, data, error } = UserSchema.safeParse({
-    ...user,
-    createdAt: new Date(user.createdAt),
-    updatedAt: new Date(user.updatedAt),
-  });
-
-  if (!success) {
-    console.error('Failed to parse user', data, error);
-
-    return {
-      success: false,
-      error: ResponseError.InternalServerError,
-      message: 'Failed to create user',
-    };
-  }
-
-  return { success: true, data };
+  return { success: true, data: UserSchema.parse(insertUserResult.data) };
 }
 
 export async function signIn(
@@ -320,6 +302,162 @@ export async function signOut(
       message: 'Failed to sign out',
     }),
   );
+}
+
+export async function getUser(
+  { env }: HonoContext,
+  { userId }: { userId: string },
+): Promise<Result<User, typeof ResponseError.NotFound>> {
+  const db = drizzle(env.DB);
+  const userIdResult = decodeUserId(userId);
+  if (!userIdResult.success) {
+    return {
+      success: false,
+      error: ResponseError.NotFound,
+      message: 'User not found',
+    };
+  }
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, userIdResult.data))
+    .execute();
+  if (!user) {
+    return {
+      success: false,
+      error: ResponseError.NotFound,
+      message: 'User not found',
+    };
+  }
+  return { success: true, data: user };
+}
+
+export async function updateMyInfo(
+  c: HonoContext,
+  {
+    token,
+    name,
+    handle,
+    password,
+    passwordConfirmation,
+  }: {
+    token: string;
+    name: string | undefined;
+    handle: string | undefined;
+    password: string | undefined;
+    passwordConfirmation: string | undefined;
+  },
+): Promise<
+  Result<
+    User,
+    | typeof ResponseError.BadRequest
+    | typeof ResponseError.Unauthorized
+    | typeof ResponseError.InternalServerError
+  >
+> {
+  const userResult = await verify(c, { token });
+  if (!userResult.success) {
+    return userResult;
+  }
+
+  const db = drizzle(c.env.DB);
+
+  const updates: {
+    name?: string;
+    handle?: string;
+    passwordHash?: Buffer;
+  } = {};
+
+  if (name !== undefined) {
+    const nameValidation = validateName(name);
+    if (!nameValidation.success) {
+      return nameValidation;
+    }
+    updates.name = name;
+  }
+
+  if (handle !== undefined) {
+    const handleValidation = validateHandle(handle);
+    if (!handleValidation.success) {
+      return handleValidation;
+    }
+    updates.handle = handle;
+  }
+
+  if (password !== undefined) {
+    if (passwordConfirmation === undefined) {
+      return {
+        success: false,
+        error: ResponseError.BadRequest,
+        message: 'Password confirmation is required',
+      };
+    }
+    const passwordValidation = validatePassword({
+      name: userResult.data.name,
+      handle: userResult.data.handle,
+      password,
+      passwordConfirmation,
+    });
+    if (!passwordValidation.success) {
+      return passwordValidation;
+    }
+    updates.passwordHash = Buffer.from(
+      await hash({
+        password,
+        salt: c.env.PASSWORD_SALT,
+      }),
+    );
+  }
+
+  const [updatedUser] = await db
+    .update(users)
+    .set(updates)
+    .where(eq(users.id, userResult.data.id))
+    .returning();
+
+  if (!updatedUser) {
+    return {
+      success: false,
+      error: ResponseError.InternalServerError,
+      message: 'Failed to update user',
+    };
+  }
+
+  return { success: true, data: UserSchema.parse(updatedUser) };
+}
+
+export async function unregister(
+  c: HonoContext,
+  { token }: { token: string },
+): Promise<
+  Result<
+    undefined,
+    | typeof ResponseError.BadRequest
+    | typeof ResponseError.Unauthorized
+    | typeof ResponseError.InternalServerError
+  >
+> {
+  const userResult = await verify(c, { token });
+  if (!userResult.success) {
+    return userResult;
+  }
+
+  const db = drizzle(c.env.DB);
+
+  const [user] = await db
+    .delete(users)
+    .where(eq(users.id, userResult.data.id))
+    .returning();
+
+  if (!user) {
+    return {
+      success: false,
+      error: ResponseError.InternalServerError,
+      message: 'Failed to delete user',
+    };
+  }
+
+  return { success: true, data: undefined };
 }
 
 function validatePassword({
