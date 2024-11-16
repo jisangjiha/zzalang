@@ -2,7 +2,7 @@ import type { OpenAPIHono } from '@hono/zod-openapi';
 import { createRoute } from '@hono/zod-openapi';
 import z from 'zod';
 
-import { register } from '~/controller/users';
+import { register, signIn } from '~/controller/users';
 import { encodeUser, UserResponseSchema } from '~/models/users';
 import type { HonoEnv } from '~/types';
 import { ResponseError } from '~/utils/result';
@@ -85,6 +85,85 @@ export default function handleUsers(app: OpenAPIHono<HonoEnv>) {
       }
 
       return c.json(encodeUser(user), 200);
+    },
+  );
+
+  app.openapi(
+    createRoute({
+      method: 'post',
+      path: '/users/sign-in',
+      description: 'Sign in',
+      tags: ['users'],
+      summary: 'Sign in',
+      request: {
+        body: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                handle: z.string(),
+                password: z.string(),
+              }),
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                user: UserResponseSchema,
+                token: z.string(),
+              }),
+            },
+          },
+          description: 'Sign in',
+        },
+        [ResponseError.BadRequest]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Invalid input',
+        },
+        [ResponseError.Unauthorized]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Invalid handle or password',
+        },
+      },
+    }),
+    async (c) => {
+      const { handle, password } = c.req.valid('json');
+      const { success, data, error, message } = await signIn(c.env, {
+        handle,
+        password,
+      });
+
+      if (!success) {
+        return c.json(
+          {
+            message,
+          },
+          error,
+        );
+      }
+
+      return c.json(
+        {
+          user: encodeUser(data.user),
+          token: data.token,
+        },
+        200,
+      );
     },
   );
 }

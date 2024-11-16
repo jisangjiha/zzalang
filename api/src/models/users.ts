@@ -24,6 +24,10 @@ export const UserResponseSchema = z
   })
   .openapi('User');
 
+export function getUserId(id: number) {
+  return encodeId(USERS_KEY, id);
+}
+
 export const encodeUser = z
   .function()
   .args(UserSchema)

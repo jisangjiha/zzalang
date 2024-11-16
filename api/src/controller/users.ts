@@ -1,8 +1,10 @@
 import { Buffer } from 'node:buffer';
+import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
+import * as jose from 'jose';
 
 import type { User } from '~/models/users';
-import { UserSchema } from '~/models/users';
+import { getUserId, UserSchema } from '~/models/users';
 import { users } from '~/schema';
 import { hash } from '~/utils/auth';
 import type { Result } from '~/utils/result';
@@ -14,6 +16,8 @@ const MIN_NAME_LENGTH = 1;
 
 const ALLOWED_PASSWORD_CHARACTERS = /^[\w!"#$%&'()*+,./:;<=>?@[\\\]^{|}-]*$/u;
 const ALLOWED_HANDLE_CHARACTERS = /^[\w-]*$/u;
+
+const TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
 
 export async function register(
   env: Env,
@@ -131,6 +135,68 @@ export async function register(
   }
 
   return { success: true, data };
+}
+
+export async function signIn(
+  env: Env,
+  {
+    handle,
+    password,
+  }: {
+    handle: string;
+    password: string;
+  },
+): Promise<
+  Result<
+    {
+      user: User;
+      token: string;
+    },
+    typeof ResponseError.BadRequest | typeof ResponseError.Unauthorized
+  >
+> {
+  const db = drizzle(env.DB);
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.handle, handle))
+    .execute();
+
+  if (!user) {
+    return {
+      success: false,
+      error: ResponseError.Unauthorized,
+      message: 'Invalid handle or password',
+    };
+  }
+
+  const passwordHash = await hash({ password, salt: env.PASSWORD_SALT });
+
+  if (!Buffer.from(passwordHash).equals(Buffer.from(user.passwordHash))) {
+    return {
+      success: false,
+      error: ResponseError.Unauthorized,
+      message: 'Invalid handle or password',
+    };
+  }
+
+  const sign = new jose.SignJWT({
+    sub: getUserId(user.id),
+    iat: Date.now(),
+    exp: Date.now() + TOKEN_EXPIRATION,
+  });
+
+  const token = await sign
+    .setProtectedHeader({ alg: 'HS256' })
+    .sign(new TextEncoder().encode(env.JWT_SECRET));
+
+  return {
+    success: true,
+    data: {
+      user,
+      token,
+    },
+  };
 }
 
 function validatePassword({

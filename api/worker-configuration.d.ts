@@ -2,5 +2,6 @@
 
 interface Env {
 	PASSWORD_SALT: string;
+	JWT_SECRET: string;
 	DB: D1Database;
 }
