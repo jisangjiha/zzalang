@@ -12,7 +12,7 @@ export default function handleUsers(app: OpenAPIHono<HonoEnv>) {
   app.openapi(
     createRoute({
       method: 'post',
-      path: '/users',
+      path: '/register',
       description: 'Register a new user',
       tags: ['users'],
       summary: 'Register a new user',
