@@ -23,9 +23,9 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
       description: 'List all posts',
       tags: ['posts'],
       request: {
-        params: z.object({
-          page: z.number().default(1),
-          pageSize: z.number().default(10),
+        query: z.object({
+          page: z.coerce.number().default(1),
+          pageSize: z.coerce.number().default(10),
           order: z.nativeEnum(Order).default(Order.Desc),
         }),
       },
@@ -54,7 +54,7 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
       },
     }),
     async (c) => {
-      const { page, pageSize, order } = c.req.valid('param');
+      const { page, pageSize, order } = c.req.valid('query');
 
       const postsResult = await listPosts(c, { page, pageSize, order });
 
