@@ -1,6 +1,7 @@
 import { swaggerUI } from '@hono/swagger-ui';
 import { OpenAPIHono } from '@hono/zod-openapi';
 
+import handlePosts from './routes/posts';
 import handleUsers from './routes/users';
 import type { HonoEnv } from './types';
 
@@ -24,6 +25,7 @@ app.openAPIRegistry.registerComponent('securitySchemes', 'bearerAuth', {
 });
 
 handleUsers(app);
+handlePosts(app);
 
 app.doc('/doc.json', {
   openapi: '3.0.0',
