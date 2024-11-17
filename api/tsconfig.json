@@ -12,7 +12,9 @@
       "@types/node",
       "@types/service-worker-mock",
       "@cloudflare/workers-types/2023-07-01"
-    ]
+    ],
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx"
   },
   "exclude": ["node_modules", "dist", "tests"],
   "include": ["src", "scripts", "worker-configuration.d.ts"]

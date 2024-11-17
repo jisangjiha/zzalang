@@ -1,8 +1,7 @@
-import { swaggerUI } from '@hono/swagger-ui';
 import { OpenAPIHono } from '@hono/zod-openapi';
 
-import handlePosts from './routes/posts';
-import handleUsers from './routes/users';
+import handleIndex from './routes';
+import handleV1App from './routes/v1';
 import type { HonoEnv } from './types';
 
 const app = new OpenAPIHono<HonoEnv>({
@@ -24,22 +23,7 @@ app.openAPIRegistry.registerComponent('securitySchemes', 'bearerAuth', {
   bearerFormat: 'JWT',
 });
 
-handleUsers(app);
-handlePosts(app);
-
-app.doc('/doc.json', {
-  openapi: '3.0.0',
-  info: {
-    version: '1.0.0',
-    title: 'My API',
-  },
-});
-
-app.get(
-  '/',
-  swaggerUI({
-    url: '/doc.json',
-  }),
-);
+handleIndex(app);
+handleV1App(app);
 
 export default app;
