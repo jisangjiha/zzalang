@@ -2,7 +2,13 @@ import type { OpenAPIHono } from '@hono/zod-openapi';
 import { createRoute } from '@hono/zod-openapi';
 import z from 'zod';
 
-import { createPost, getPost, listPosts } from '~/controller/posts';
+import {
+  createPost,
+  deletePost,
+  getPost,
+  listPosts,
+  updatePost,
+} from '~/controller/posts';
 import { encodePost, PostResponseSchema } from '~/models/posts';
 import type { HonoEnv } from '~/types';
 import { Order } from '~/utils/order';
@@ -228,6 +234,214 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
       }
 
       return c.json(encodePost(postResult.data), 200);
+    },
+  );
+
+  app.openapi(
+    createRoute({
+      method: 'put',
+      path: '/posts/{id}',
+      summary: 'Update post',
+      description: 'Update a post by ID',
+      tags: ['posts'],
+      request: {
+        params: z.object({
+          id: z.string().openapi({
+            param: {
+              name: 'id',
+              in: 'path',
+            },
+          }),
+        }),
+        body: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                title: z.string(),
+                content: z.string(),
+              }),
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          content: {
+            'application/json': {
+              schema: PostResponseSchema,
+            },
+          },
+          description: 'Post updated',
+        },
+        [ResponseError.NotFound]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Post not found',
+        },
+        [ResponseError.BadRequest]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Bad request',
+        },
+        [ResponseError.Unauthorized]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Unauthorized',
+        },
+        [ResponseError.Forbidden]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Forbidden',
+        },
+        [ResponseError.InternalServerError]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Internal server error',
+        },
+      },
+      security: [
+        {
+          bearerAuth: [],
+        },
+      ],
+    }),
+    async (c) => {
+      const { id } = c.req.valid('param');
+      const { title, content } = c.req.valid('json');
+
+      const postResult = await updatePost(c, { id, title, content });
+
+      if (!postResult.success) {
+        return c.json(
+          {
+            message: postResult.message,
+          },
+          postResult.error,
+        );
+      }
+
+      return c.json(encodePost(postResult.data), 200);
+    },
+  );
+
+  app.openapi(
+    createRoute({
+      method: 'delete',
+      path: '/posts/{id}',
+      summary: 'Delete post',
+      description: 'Delete a post by ID',
+      tags: ['posts'],
+      request: {
+        params: z.object({
+          id: z.string().openapi({
+            param: {
+              name: 'id',
+              in: 'path',
+            },
+          }),
+        }),
+      },
+      responses: {
+        200: {
+          description: 'Post deleted',
+        },
+        [ResponseError.NotFound]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Post not found',
+        },
+        [ResponseError.BadRequest]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Bad request',
+        },
+        [ResponseError.Unauthorized]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Unauthorized',
+        },
+        [ResponseError.Forbidden]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Forbidden',
+        },
+        [ResponseError.InternalServerError]: {
+          content: {
+            'application/json': {
+              schema: z.object({
+                message: z.string().optional(),
+              }),
+            },
+          },
+          description: 'Internal server error',
+        },
+      },
+      security: [
+        {
+          bearerAuth: [],
+        },
+      ],
+    }),
+    async (c) => {
+      const { id } = c.req.valid('param');
+
+      const postResult = await deletePost(c, id);
+
+      if (!postResult.success) {
+        return c.json(
+          {
+            message: postResult.message,
+          },
+          postResult.error,
+        );
+      }
+
+      return c.newResponse(null, 200);
     },
   );
 }

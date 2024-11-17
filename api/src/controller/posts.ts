@@ -159,3 +159,150 @@ export async function createPost(
     data,
   };
 }
+
+export async function updatePost(
+  c: HonoContext,
+  {
+    id,
+    title,
+    content,
+  }: {
+    id: string;
+    title: string;
+    content: string;
+  },
+): Promise<
+  Result<
+    Post,
+    | typeof ResponseError.BadRequest
+    | typeof ResponseError.Unauthorized
+    | typeof ResponseError.Forbidden
+    | typeof ResponseError.NotFound
+    | typeof ResponseError.InternalServerError
+  >
+> {
+  const userResult = await verify(c);
+
+  if (!userResult.success) {
+    return userResult;
+  }
+
+  const db = drizzle(c.env.DB);
+  const user = userResult.data;
+
+  const postIdResult = decodePostId(id);
+
+  if (!postIdResult.success) {
+    return {
+      success: false,
+      error: ResponseError.NotFound,
+      message: 'Post not found',
+    };
+  }
+
+  const postId = postIdResult.data;
+
+  // Check is the author of the post
+  const [post] = await db.select().from(posts).where(eq(posts.id, postId));
+
+  if (!post) {
+    return {
+      success: false,
+      error: ResponseError.NotFound,
+      message: 'Post not found',
+    };
+  }
+
+  if (post.authorId !== user.id) {
+    return {
+      success: false,
+      error: ResponseError.Forbidden,
+      message: 'Forbidden',
+    };
+  }
+
+  const [updatedPost] = await db
+    .update(posts)
+    .set({
+      title,
+      content,
+    })
+    .where(eq(posts.id, postId))
+    .returning();
+
+  const { success, data } = PostSchema.safeParse(updatedPost);
+
+  if (!success) {
+    return {
+      success: false,
+      error: ResponseError.InternalServerError,
+      message: 'Failed to parse post',
+    };
+  }
+
+  return {
+    success: true,
+    data,
+  };
+}
+
+export async function deletePost(
+  c: HonoContext,
+  id: string,
+): Promise<
+  Result<
+    void,
+    | typeof ResponseError.BadRequest
+    | typeof ResponseError.Unauthorized
+    | typeof ResponseError.Forbidden
+    | typeof ResponseError.NotFound
+    | typeof ResponseError.InternalServerError
+  >
+> {
+  const userResult = await verify(c);
+
+  if (!userResult.success) {
+    return userResult;
+  }
+
+  const db = drizzle(c.env.DB);
+  const user = userResult.data;
+
+  const postIdResult = decodePostId(id);
+
+  if (!postIdResult.success) {
+    return {
+      success: false,
+      error: ResponseError.NotFound,
+      message: 'Post not found',
+    };
+  }
+
+  const postId = postIdResult.data;
+
+  // Check is the author of the post
+  const [post] = await db.select().from(posts).where(eq(posts.id, postId));
+
+  if (!post) {
+    return {
+      success: false,
+      error: ResponseError.NotFound,
+      message: 'Post not found',
+    };
+  }
+
+  if (post.authorId !== user.id) {
+    return {
+      success: false,
+      error: ResponseError.Forbidden,
+      message: 'Forbidden',
+    };
+  }
+
+  await db.delete(posts).where(eq(posts.id, postId));
+
+  return {
+    success: true,
+    data: undefined,
+  };
+}
