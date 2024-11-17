@@ -6,6 +6,7 @@ import type { Result } from '~/utils/result';
 import { encodeUserId } from './users';
 
 const POSTS_KEY = 2;
+const POSTS_CURSOR_KEY = 3;
 
 export const PostSchema = z.object({
   id: z.number(),
@@ -49,3 +50,11 @@ export const encodePost = z
     content: post.content,
     authorId: encodeUserId(post.authorId),
   }));
+
+export function encodePostsCursor(id: number) {
+  return encodeId(POSTS_CURSOR_KEY, id);
+}
+
+export function decodePostsCursor(id: string) {
+  return decodeId(POSTS_CURSOR_KEY, id);
+}

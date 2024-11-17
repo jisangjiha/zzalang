@@ -1,4 +1,4 @@
-import { asc, desc, eq } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
 
 import type { Post } from '~/models/posts';
@@ -8,6 +8,7 @@ import type { HonoContext } from '~/types';
 import { Order } from '~/utils/order';
 import type { Result } from '~/utils/result';
 import { ResponseError } from '~/utils/result';
+import { postsFts } from '~/virtual-schemas';
 
 import { verify } from './users';
 
@@ -304,5 +305,76 @@ export async function deletePost(
   return {
     success: true,
     data: undefined,
+  };
+}
+
+export async function searchPosts(
+  c: HonoContext,
+  {
+    query,
+    cursor,
+    pageSize,
+    order,
+  }: {
+    query: string;
+    cursor: number | null;
+    pageSize: number;
+    order: Order;
+  },
+): Promise<
+  Result<
+    {
+      posts: Post[];
+      cursor: number | null;
+      hasMore: boolean;
+    },
+    typeof ResponseError.BadRequest
+  >
+> {
+  const db = drizzle(c.env.DB);
+
+  const searchQuery = sql`posts_content_fts MATCH ${`"${query}"`}`;
+  const orderDirection = order === Order.Asc ? asc : desc;
+
+  const postsSearchSubQuery = db.$with('posts_search').as(
+    db
+      .select({
+        rowid: postsFts.rowid,
+      })
+      .from(postsFts)
+      .orderBy(orderDirection(postsFts.rowid))
+      .where(
+        cursor === null
+          ? searchQuery
+          : and(gt(postsFts.rowid, cursor), searchQuery),
+      )
+      .limit(
+        // Fetch one more than the page size to determine if there are more
+        pageSize + 1,
+      ),
+  );
+
+  const postsSearchResult = await db
+    .with(postsSearchSubQuery)
+    .select()
+    .from(posts)
+    .innerJoin(postsSearchSubQuery, eq(posts.id, postsSearchSubQuery.rowid));
+
+  const hasMore = postsSearchResult.length > pageSize;
+
+  const slicedPosts = postsSearchResult.slice(0, pageSize);
+
+  const postList = slicedPosts.map(({ posts: post }) => post);
+  const newCursor = hasMore
+    ? (slicedPosts.at(-1)?.posts_search.rowid ?? null)
+    : null;
+
+  return {
+    success: true,
+    data: {
+      posts: postList,
+      cursor: newCursor,
+      hasMore,
+    },
   };
 }

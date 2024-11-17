@@ -12,7 +12,10 @@ export function encodeId(key: number, id: number): string {
   return sqids.encode([key, id]);
 }
 
-export function decodeId(key: number, encoded: string): Result<number> {
+export function decodeId(
+  key: number,
+  encoded: string,
+): Result<number, typeof ResponseError.BadRequest> {
   const [sqkey, sqid, ...rest] = sqids.decode(encoded);
 
   if (rest.length > 0 || sqkey !== key || typeof sqid !== 'number') {
