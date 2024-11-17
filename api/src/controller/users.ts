@@ -24,6 +24,7 @@ const TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
 
 const TokenSchema = z.object({
   userId: z.number(),
+  token: z.string(),
 });
 
 const tokenTranscoder = createJsonTranscoder(TokenSchema);
@@ -185,7 +186,7 @@ export async function signIn(
     .sign(new TextEncoder().encode(env.JWT_SECRET));
 
   executionCtx.waitUntil(
-    env.TOKENS.put(token, tokenTranscoder.encode({ userId: user.id }), {
+    env.TOKENS.put(token, tokenTranscoder.encode({ userId: user.id, token }), {
       expiration: expiration / 1000,
     }),
   );
@@ -200,8 +201,7 @@ export async function signIn(
 }
 
 export async function verify(
-  { env }: HonoContext,
-  { token }: { token: string },
+  c: HonoContext,
 ): Promise<
   Result<
     User,
@@ -212,7 +212,13 @@ export async function verify(
     Result<z.infer<typeof TokenSchema>, typeof ResponseError.Unauthorized>
   > {
     try {
-      const validToken = await env.TOKENS.get(token);
+      const tokenResult = getToken(c);
+
+      if (!tokenResult.success) {
+        return tokenResult;
+      }
+
+      const validToken = await c.env.TOKENS.get(tokenResult.data);
       if (validToken === null) {
         console.error('Token not found');
         return {
@@ -242,10 +248,10 @@ export async function verify(
     return tokenResult;
   }
 
-  const db = drizzle(env.DB);
+  const db = drizzle(c.env.DB);
   const { payload } = await jose.jwtVerify(
-    token,
-    new TextEncoder().encode(env.JWT_SECRET),
+    tokenResult.data.token,
+    new TextEncoder().encode(c.env.JWT_SECRET),
   );
 
   if (payload.sub === undefined) {
@@ -291,10 +297,15 @@ export async function verify(
 }
 
 export async function signOut(
-  { env }: HonoContext,
-  token: string,
+  c: HonoContext,
 ): Promise<Result<undefined, typeof ResponseError.Unauthorized>> {
-  return env.TOKENS.delete(token).then(
+  const tokenResult = getToken(c);
+
+  if (!tokenResult.success) {
+    return tokenResult;
+  }
+
+  return c.env.TOKENS.delete(tokenResult.data).then(
     () => ({ success: true, data: undefined }),
     () => ({
       success: false,
@@ -335,13 +346,11 @@ export async function getUser(
 export async function updateMyInfo(
   c: HonoContext,
   {
-    token,
     name,
     handle,
     password,
     passwordConfirmation,
   }: {
-    token: string;
     name: string | undefined;
     handle: string | undefined;
     password: string | undefined;
@@ -355,7 +364,7 @@ export async function updateMyInfo(
     | typeof ResponseError.InternalServerError
   >
 > {
-  const userResult = await verify(c, { token });
+  const userResult = await verify(c);
   if (!userResult.success) {
     return userResult;
   }
@@ -428,7 +437,6 @@ export async function updateMyInfo(
 
 export async function unregister(
   c: HonoContext,
-  { token }: { token: string },
 ): Promise<
   Result<
     undefined,
@@ -437,7 +445,7 @@ export async function unregister(
     | typeof ResponseError.InternalServerError
   >
 > {
-  const userResult = await verify(c, { token });
+  const userResult = await verify(c);
   if (!userResult.success) {
     return userResult;
   }
@@ -550,4 +558,32 @@ function validateName(
     };
   }
   return { success: true, data: undefined };
+}
+
+export function getToken(
+  c: HonoContext,
+): Result<string, typeof ResponseError.Unauthorized> {
+  const bearerToken = c.req.header('Authorization');
+  if (bearerToken === undefined) {
+    return {
+      success: false,
+      error: ResponseError.Unauthorized,
+      message: 'No token provided',
+    };
+  }
+
+  const [bearerText, token] = bearerToken.split(' ');
+
+  if (bearerText !== 'Bearer' || token === undefined) {
+    return {
+      success: false,
+      error: ResponseError.Unauthorized,
+      message: 'Invalid token',
+    };
+  }
+
+  return {
+    success: true,
+    data: token,
+  };
 }

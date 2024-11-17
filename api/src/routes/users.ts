@@ -13,7 +13,6 @@ import {
 } from '~/controller/users';
 import { encodeUser, UserResponseSchema } from '~/models/users';
 import type { HonoEnv } from '~/types';
-import { getToken } from '~/utils/auth';
 import { ResponseError } from '~/utils/result';
 
 export default function handleUsers(app: OpenAPIHono<HonoEnv>) {
@@ -153,29 +152,7 @@ export default function handleUsers(app: OpenAPIHono<HonoEnv>) {
       ],
     }),
     async (c) => {
-      const bearerToken = c.req.header('Authorization');
-      if (bearerToken === undefined) {
-        return c.json(
-          {
-            message: 'Unauthorized',
-          },
-          ResponseError.Unauthorized,
-        );
-      }
-
-      const tokenResult = getToken(bearerToken);
-      if (!tokenResult.success) {
-        return c.json(
-          {
-            message: 'Invalid token',
-          },
-          ResponseError.Unauthorized,
-        );
-      }
-
-      const { success, error, message } = await unregister(c, {
-        token: tokenResult.data,
-      });
+      const { success, error, message } = await unregister(c);
 
       if (!success) {
         return c.json(
@@ -320,27 +297,7 @@ export default function handleUsers(app: OpenAPIHono<HonoEnv>) {
       ],
     }),
     async (c) => {
-      const bearerToken = c.req.header('Authorization');
-      if (bearerToken === undefined) {
-        return c.json(
-          {
-            message: 'Unauthorized',
-          },
-          ResponseError.Unauthorized,
-        );
-      }
-
-      const tokenResult = getToken(bearerToken);
-      if (!tokenResult.success) {
-        return c.json(
-          {
-            message: 'Invalid token',
-          },
-          ResponseError.Unauthorized,
-        );
-      }
-
-      const { success, error, message } = await signOut(c, tokenResult.data);
+      const { success, error, message } = await signOut(c);
 
       if (!success) {
         return c.json(
@@ -404,29 +361,7 @@ export default function handleUsers(app: OpenAPIHono<HonoEnv>) {
       ],
     }),
     async (c) => {
-      const bearerToken = c.req.header('Authorization');
-      if (bearerToken === undefined) {
-        return c.json(
-          {
-            message: 'Unauthorized',
-          },
-          ResponseError.Unauthorized,
-        );
-      }
-
-      const tokenResult = getToken(bearerToken);
-      if (!tokenResult.success) {
-        return c.json(
-          {
-            message: 'Invalid token',
-          },
-          ResponseError.Unauthorized,
-        );
-      }
-
-      const { success, data, error, message } = await verify(c, {
-        token: tokenResult.data,
-      });
+      const { success, data, error, message } = await verify(c);
 
       if (!success) {
         return c.json(
@@ -509,30 +444,9 @@ export default function handleUsers(app: OpenAPIHono<HonoEnv>) {
       ],
     }),
     async (c) => {
-      const bearerToken = c.req.header('Authorization');
-      if (bearerToken === undefined) {
-        return c.json(
-          {
-            message: 'Unauthorized',
-          },
-          ResponseError.Unauthorized,
-        );
-      }
-
-      const tokenResult = getToken(bearerToken);
-      if (!tokenResult.success) {
-        return c.json(
-          {
-            message: 'Invalid token',
-          },
-          ResponseError.Unauthorized,
-        );
-      }
-
       const { name, handle, password, passwordConfirmation } =
         c.req.valid('json');
       const { success, data, error, message } = await updateMyInfo(c, {
-        token: tokenResult.data,
         name,
         handle,
         password,
