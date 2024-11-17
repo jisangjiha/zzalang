@@ -1,7 +1,8 @@
 import { Buffer } from 'node:buffer';
 import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
-import * as jose from 'jose';
+import * as jwt from 'hono/jwt';
+import type { JWTPayload } from 'hono/utils/jwt/types';
 import z from 'zod';
 
 import type { User } from '~/models/users';
@@ -175,19 +176,18 @@ export async function signIn(
   const now = Date.now();
   const expiration = now + TOKEN_EXPIRATION;
 
-  const sign = new jose.SignJWT({
-    sub: encodeUserId(user.id),
-    iat: now,
-    exp: expiration,
-  });
-
-  const token = await sign
-    .setProtectedHeader({ alg: 'HS256' })
-    .sign(new TextEncoder().encode(env.JWT_SECRET));
+  const token = await jwt.sign(
+    {
+      sub: encodeUserId(user.id),
+      iat: toSeconds(now),
+      exp: toSeconds(expiration),
+    },
+    env.JWT_SECRET,
+  );
 
   executionCtx.waitUntil(
     env.TOKENS.put(token, tokenTranscoder.encode({ userId: user.id, token }), {
-      expiration: expiration / 1000,
+      expiration: toSeconds(expiration),
     }),
   );
 
@@ -249,12 +249,29 @@ export async function verify(
   }
 
   const db = drizzle(c.env.DB);
-  const { payload } = await jose.jwtVerify(
-    tokenResult.data.token,
-    new TextEncoder().encode(c.env.JWT_SECRET),
-  );
+  const verifyResult: Result<JWTPayload, typeof ResponseError.Unauthorized> =
+    await jwt.verify(tokenResult.data.token, c.env.JWT_SECRET).then(
+      (payload) => ({
+        success: true,
+        data: payload,
+      }),
+      (error: unknown) => {
+        console.error('Failed to verify token', error);
+        return {
+          success: false,
+          error: ResponseError.Unauthorized,
+          message: 'Invalid token',
+        };
+      },
+    );
 
-  if (payload.sub === undefined) {
+  if (!verifyResult.success) {
+    return verifyResult;
+  }
+
+  const { data: payload } = verifyResult;
+
+  if (typeof payload.sub !== 'string') {
     console.error('JWT payload does not contain sub');
     return {
       success: false,
@@ -586,4 +603,8 @@ export function getToken(
     success: true,
     data: token,
   };
+}
+
+function toSeconds(milliseconds: number): number {
+  return Math.floor(milliseconds / 1000);
 }
