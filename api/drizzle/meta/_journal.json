@@ -28,6 +28,13 @@
       "version": "6",
       "when": 1731832272045,
       "tag": "0003_post_search.sql"
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1731834005725,
+      "tag": "0004_fat_forge",
+      "breakpoints": true
     }
   ]
 }
