@@ -1,0 +1,42 @@
+{
+  "name": "zzalang-api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "start": "wrangler dev",
+    "test": "vitest --config=./configs/vitest.config.ts",
+    "generate:schema": "drizzle-kit generate --config=./configs/drizzle.config.ts",
+    "generate:type": "wrangler types",
+    "dev:migration": "wrangler d1 migrations apply board --local",
+    "dev:clean": "rimraf ./.wrangler"
+  },
+  "dependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.5.24",
+    "@hono/swagger-ui": "^0.4.1",
+    "@hono/zod-openapi": "0.17.0",
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.36.1",
+    "drizzle-zod": "^0.5.1",
+    "hono": "^4.4.7",
+    "sqids": "^0.3.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241022.0",
+    "@seokminhong/configs": "^2.1.0",
+    "@types/node": "^22.8.6",
+    "@types/service-worker-mock": "^2.0.1",
+    "drizzle-kit": "^0.28.0",
+    "eslint": "^9.14.0",
+    "prettier": "^3.3.3",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4",
+    "wrangler": "^3.60.3"
+  },
+  "packageManager": "pnpm@9.12.3"
+}

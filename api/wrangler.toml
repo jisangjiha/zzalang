@@ -1,0 +1,22 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "zzalang-api"
+main = "src/index.ts"
+compatibility_date = "2024-10-22"
+compatibility_flags = ["nodejs_compat"]
+
+# Workers Logs
+# Docs: https://developers.cloudflare.com/workers/observability/logs/workers-logs/
+# Configuration: https://developers.cloudflare.com/workers/observability/logs/workers-logs/#enable-workers-logs
+[observability]
+enabled = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "board"
+database_id = "230391a4-a929-40fe-b0a7-1c194f8fe0f0"
+migrations_dir = "drizzle"
+
+[[kv_namespaces]]
+binding = "TOKENS"
+id = "971c6c1500174e6d98b92a46780527b1"
+preview_id = "c6aaf1ab2a5f4e51856a4de09a51c194"
