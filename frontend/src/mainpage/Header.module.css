@@ -1,5 +1,5 @@
 .header {
-  height: 80px;
+  height: 40px;
   width: 100%;
 
   display: flex;
@@ -7,6 +7,6 @@
   align-items: center;
 }
 
-.logo {
-  margin: 16px;
+.zzalang {
+  margin: 4px;
 }
