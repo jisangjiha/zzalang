@@ -11,18 +11,20 @@
   top: 0;
 
   background-color: salmon;
+
+  & a {
+    background-color: transparent;
+    color: black;
+    text-decoration-line: none;
+  }
 }
 
-.logo {
+.zzalang {
   display: flex;
   align-items: center;
 
-  & .zzalang {
-    margin: 4px;
-
-    &:hover {
-      cursor: pointer;
-    }
+  & img {
+    margin: 0 4px 0 0;
   }
 }
 
@@ -33,9 +35,5 @@
   & a {
     margin: 0px 8px;
     border: 0;
-
-    background-color: transparent;
-    color: black;
-    text-decoration-line: none;
   }
 }

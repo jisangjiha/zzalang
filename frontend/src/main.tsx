@@ -9,17 +9,18 @@ import {
 
 import "./index.css";
 import App from "./App.tsx";
-import Test from "./mainpage/Test.tsx";
 import RegisterPage from "./page/RegisterPage.tsx";
 import LoginPage from "./page/LoginPage.tsx";
+import MainPage from "./page/MainPage.tsx";
 
 const router = createBrowserRouter(
   createRoutesFromChildren(
     <>
-      <Route path="" element={<App />} />
-      <Route path="test" element={<Test />} />
-      <Route path="register" element={<RegisterPage />} />
-      <Route path="login" element={<LoginPage />} />
+      <Route path="" element={<App />}>
+        <Route path="main" element={<MainPage />} />
+        <Route path="register" element={<RegisterPage />} />
+        <Route path="login" element={<LoginPage />} />
+      </Route>
     </>
   )
 );
