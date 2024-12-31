@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import logo from "../assets/casper.svg";
 import styles from "./Header.module.css";
 
@@ -9,8 +10,8 @@ export default function Header() {
         <div className={styles.zzalang}>zzalang</div>
       </div>
       <div className={styles.identify}>
-        <button>회원가입</button>
-        <button>로그인</button>
+        <Link to={`/register`}>회원가입</Link>
+        <Link to={`/login`}>로그인</Link>
       </div>
     </header>
   );
