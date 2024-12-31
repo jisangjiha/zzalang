@@ -1,10 +1,8 @@
-import styles from "./Main.module.css";
-import { Link } from "react-router-dom";
+import styles from "./MainPage.module.css";
 
-export default function Main() {
+export default function MainPage() {
   return (
     <main className={styles.main}>
-      <Link to={`/test`}>test</Link>
       main
       <br />
       d
