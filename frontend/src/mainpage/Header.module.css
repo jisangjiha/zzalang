@@ -4,7 +4,7 @@
   padding: 4px 20px;
 
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
 
   position: sticky;
@@ -13,6 +13,31 @@
   background-color: salmon;
 }
 
-.zzalang {
-  margin: 4px;
+.logo {
+  display: flex;
+  align-items: center;
+
+  & .zzalang {
+    margin: 4px;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+}
+
+.identify {
+  display: flex;
+  align-items: center;
+
+  & button {
+    margin: 8px;
+    border: 0;
+
+    background-color: transparent;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
 }
