@@ -1,6 +1,7 @@
 .main {
   width: 100%;
   max-width: 800px;
+  padding: 4px;
 
   display: flex;
   flex: 1;
