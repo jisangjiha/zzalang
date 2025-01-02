@@ -1,13 +1,4 @@
-#root {
-  height: 100%;
-
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-main {
+.main {
   width: 100%;
   max-width: 800px;
   padding: 4px;

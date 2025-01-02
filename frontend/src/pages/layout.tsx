@@ -1,13 +1,14 @@
 import { Outlet } from "react-router-dom";
-import "./App.css";
-import Footer from "./fixed/Footer";
-import Header from "./fixed/Header";
+import Header from "./_components/Header";
+import Footer from "./_components/Footer";
+
+import styles from "./layout.module.css";
 
 function App() {
   return (
     <>
       <Header />
-      <main>
+      <main className={styles.main}>
         <Outlet />
       </main>
       <Footer />

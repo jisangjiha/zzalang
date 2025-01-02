@@ -7,21 +7,20 @@ import {
   Route,
 } from "react-router-dom";
 
+import Layout from "./pages/layout.tsx";
+import RegisterPage from "./pages/register/page.tsx";
+import LoginPage from "./pages/login/page.tsx";
+import MainPage from "./pages/page.tsx";
+
 import "./index.css";
-import App from "./App.tsx";
-import RegisterPage from "./page/RegisterPage.tsx";
-import LoginPage from "./page/LoginPage.tsx";
-import MainPage from "./page/MainPage.tsx";
 
 const router = createBrowserRouter(
   createRoutesFromChildren(
-    <>
-      <Route path="" element={<App />}>
-        <Route path="main" element={<MainPage />} />
-        <Route path="register" element={<RegisterPage />} />
-        <Route path="login" element={<LoginPage />} />
-      </Route>
-    </>
+    <Route path="" element={<Layout />}>
+      <Route index element={<MainPage />} />
+      <Route path="register" element={<RegisterPage />} />
+      <Route path="login" element={<LoginPage />} />
+    </Route>
   )
 );
 
