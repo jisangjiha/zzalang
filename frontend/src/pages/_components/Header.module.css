@@ -1,0 +1,39 @@
+.header {
+  height: 40px;
+  width: 100%;
+  padding: 4px 20px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  position: sticky;
+  top: 0;
+
+  background-color: salmon;
+
+  & a {
+    background-color: transparent;
+    color: black;
+    text-decoration-line: none;
+  }
+}
+
+.zzalang {
+  display: flex;
+  align-items: center;
+
+  & img {
+    margin: 0 4px 0 0;
+  }
+}
+
+.identify {
+  display: flex;
+  align-items: center;
+
+  & a {
+    margin: 0px 8px;
+    border: 0;
+  }
+}
