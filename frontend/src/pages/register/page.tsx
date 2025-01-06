@@ -1,6 +1,7 @@
 import Button from "../../components/Button";
 import InputBox from "../../components/InputBox";
-import styles from "./page.module.css";
+
+import styles from "../page.module.css";
 
 export default function RegisterPage() {
   return (
