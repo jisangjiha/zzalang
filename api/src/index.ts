@@ -1,4 +1,5 @@
 import { OpenAPIHono } from '@hono/zod-openapi';
+import { cors } from 'hono/cors';
 
 import handleIndex from './routes';
 import handleV1App from './routes/v1';
@@ -16,6 +17,8 @@ const app = new OpenAPIHono<HonoEnv>({
     }
   },
 });
+
+app.use('*', cors());
 
 app.openAPIRegistry.registerComponent('securitySchemes', 'bearerAuth', {
   type: 'http',
