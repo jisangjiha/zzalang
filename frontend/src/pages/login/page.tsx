@@ -1,9 +1,16 @@
+import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+
+import { AuthContext } from "../../contexts/auth";
 import Button from "../../components/Button";
 import InputBox from "../../components/InputBox";
 
 import styles from "../page.module.css";
 
 export default function LoginPage() {
+  const navigate = useNavigate();
+  const { setToken } = useContext(AuthContext);
+
   return (
     <div className={styles.container}>
       <div>로그인</div>
@@ -21,7 +28,9 @@ export default function LoginPage() {
               password: "jisang123",
             }),
           }).then(async (res) => {
-            console.log(await res.json());
+            const data = await res.json();
+            setToken(data.token);
+            navigate("/");
           });
         }}
       >
