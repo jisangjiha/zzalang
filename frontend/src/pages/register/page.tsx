@@ -11,7 +11,7 @@ export default function RegisterPage() {
       <InputBox placeholder={"닉네임"} />
       <InputBox placeholder={"비밀번호"} />
       <InputBox placeholder={"비밀번호 확인"} />
-      <Button buttonName={"회원가입"} />
+      <Button>회원가입</Button>
     </div>
   );
 }
