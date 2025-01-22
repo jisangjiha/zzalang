@@ -4,5 +4,5 @@ import styles from "./InputBox.module.css";
 type InputProps = ComponentProps<"input">;
 
 export default function InputBox({ ...props }: InputProps) {
-  return <input className={styles.inputBox} placeholder={props.placeholder} />;
+  return <input {...props} className={styles.inputBox} />;
 }

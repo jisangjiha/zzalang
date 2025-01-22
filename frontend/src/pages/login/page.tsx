@@ -20,14 +20,15 @@ export default function LoginPage() {
       className={styles.container}
       onSubmit={(e) => {
         e.preventDefault();
+        console.log(loginState);
         fetch("http://localhost:8787/v1/sign-in", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            handle: "jisang",
-            password: "jisang123",
+            handle: loginState.handle,
+            password: loginState.password,
           }),
         }).then(async (res) => {
           const data = await res.json();
