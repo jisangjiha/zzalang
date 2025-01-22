@@ -33,6 +33,11 @@ export default function Header() {
       .then((u) => setUser(u));
   }, [token]);
 
+  const logoutHandler = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+  };
+
   return (
     <header className={styles.header}>
       <Link to="/" className={styles.zzalang}>
@@ -42,7 +47,9 @@ export default function Header() {
       {user ? (
         <div className={styles.identify}>
           <Link to="/mypage">{user.name}님 환영합니다</Link>
-          <Link to="/login">로그아웃</Link>
+          <Link to="/login" onClick={logoutHandler}>
+            로그아웃
+          </Link>
         </div>
       ) : (
         <div className={styles.identify}>
