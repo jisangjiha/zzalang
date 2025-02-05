@@ -20,7 +20,6 @@ export default function LoginPage() {
       className={styles.container}
       onSubmit={(e) => {
         e.preventDefault();
-        console.log(loginState);
         fetch("http://localhost:8787/v1/sign-in", {
           method: "POST",
           headers: {
