@@ -1,10 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 
 import { AuthContext } from "../../contexts/auth";
 import logo from "../../assets/casper.svg";
 
 import styles from "./Header.module.css";
+import HeaderButton from "../../components/HeaderButton";
 
 type User = {
   id: string;
@@ -17,6 +18,7 @@ type User = {
 export default function Header() {
   const { token } = useContext(AuthContext);
   const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!token) {
@@ -36,6 +38,8 @@ export default function Header() {
   const logoutHandler = () => {
     localStorage.removeItem("user");
     setUser(null);
+    navigate("/");
+    location.reload();
   };
 
   return (
@@ -47,9 +51,7 @@ export default function Header() {
       {user ? (
         <div className={styles.identify}>
           <Link to="/mypage">{user.name}님 환영합니다</Link>
-          <Link to="/login" onClick={logoutHandler}>
-            로그아웃
-          </Link>
+          <HeaderButton onClick={logoutHandler}>로그아웃2</HeaderButton>
         </div>
       ) : (
         <div className={styles.identify}>
