@@ -16,7 +16,7 @@ type User = {
 };
 
 export default function Header() {
-  const { token } = useContext(AuthContext);
+  const { token, clearToken } = useContext(AuthContext);
   const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
 
@@ -25,7 +25,6 @@ export default function Header() {
       setUser(null);
       return;
     }
-
     fetch("http://localhost:8787/v1/me", {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -35,11 +34,17 @@ export default function Header() {
       .then((u) => setUser(u));
   }, [token]);
 
-  const logoutHandler = () => {
-    localStorage.removeItem("user");
-    setUser(null);
-    navigate("/");
-    location.reload();
+  const handleLogout = () => {
+    fetch("http://localhost:8787/v1/sign-out", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }).then(async (res) => {
+      await res.json();
+      navigate("/");
+      clearToken();
+    });
   };
 
   return (
@@ -51,7 +56,7 @@ export default function Header() {
       {user ? (
         <div className={styles.identify}>
           <Link to="/mypage">{user.name}님 환영합니다</Link>
-          <HeaderButton onClick={logoutHandler}>로그아웃2</HeaderButton>
+          <HeaderButton onClick={handleLogout}>로그아웃</HeaderButton>
         </div>
       ) : (
         <div className={styles.identify}>
