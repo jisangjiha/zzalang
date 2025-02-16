@@ -13,6 +13,7 @@ import LoginPage from "./pages/login/page.tsx";
 import MainPage from "./pages/page.tsx";
 
 import "./index.css";
+import { AuthProvider } from "./contexts/auth.tsx";
 
 const router = createBrowserRouter(
   createRoutesFromChildren(
@@ -26,6 +27,8 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </StrictMode>
 );
