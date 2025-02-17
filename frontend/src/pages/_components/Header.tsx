@@ -1,10 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 
 import { AuthContext } from "../../contexts/auth";
 import logo from "../../assets/casper.svg";
 
 import styles from "./Header.module.css";
+import HeaderButton from "../../components/HeaderButton";
 
 type User = {
   id: string;
@@ -15,15 +16,15 @@ type User = {
 };
 
 export default function Header() {
-  const { token } = useContext(AuthContext);
+  const { token, clearToken } = useContext(AuthContext);
   const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!token) {
       setUser(null);
       return;
     }
-
     fetch("http://localhost:8787/v1/me", {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -32,6 +33,19 @@ export default function Header() {
       .then((res) => res.json())
       .then((u) => setUser(u));
   }, [token]);
+
+  const handleLogout = () => {
+    fetch("http://localhost:8787/v1/sign-out", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }).then(async (res) => {
+      await res.json();
+      navigate("/");
+      clearToken();
+    });
+  };
 
   return (
     <header className={styles.header}>
@@ -42,7 +56,7 @@ export default function Header() {
       {user ? (
         <div className={styles.identify}>
           <Link to="/mypage">{user.name}님 환영합니다</Link>
-          <Link to="/login">로그아웃</Link>
+          <HeaderButton onClick={handleLogout}>로그아웃</HeaderButton>
         </div>
       ) : (
         <div className={styles.identify}>
