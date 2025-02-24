@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 
 import { AuthContext } from "../../contexts/auth";
@@ -6,6 +6,23 @@ import Button from "../../components/Button";
 import InputBox from "../../components/InputBox";
 
 import styles from "../page.module.css";
+
+//가입 완료 되면 alert 가입 완료 되었다고
+//실패하면 페이지 넘어가지 않게!
+//pr
+//에러메시지 진짜일때만
+//helper text
+//안맞으면 회원가입못하게
+//비밀번호 *으로 > input type=password
+
+//login
+//비밀번호 *으로 > input type=password
+
+//main branch = layout: footer 바닥에 붙게
+
+//mypage - apt PATCH
+//구색맞추기
+//개인정보 수정
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -15,13 +32,6 @@ export default function RegisterPage() {
     handle: "",
     password: "",
     passwordConfirmation: "",
-  });
-  //유효성 검사를 위함
-  const [isRegisterData, setIsRegisterDate] = useState({
-    name: false,
-    handle: false,
-    password: false,
-    passwordConfirmation: false,
   });
 
   const handleRegExp = /^[a-zA-z0-9]{4,12}$/;
@@ -46,7 +56,11 @@ export default function RegisterPage() {
         }).then(async (res) => {
           const data = await res.json();
           setToken(data.token);
-          navigate("/login");
+          if (!data.message) {
+            navigate("/");
+            alert("가입이 완료되었습니다:)");
+          }
+          alert("가입에 실패하였습니다:(");
         });
       }}
     >
