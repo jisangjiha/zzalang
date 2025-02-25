@@ -101,6 +101,7 @@ export default function RegisterPage() {
         <label>password</label>
         <InputBox
           placeholder={"비밀번호"}
+          type="password"
           value={registerData.password}
           onChange={(e) => {
             setRegisterData({ ...registerData, password: e.target.value });
@@ -120,6 +121,7 @@ export default function RegisterPage() {
         <label>password confirmation</label>
         <InputBox
           placeholder={"비밀번호 확인"}
+          type="password"
           value={registerData.passwordConfirmation}
           onChange={(e) => {
             setRegisterData({
