@@ -49,6 +49,7 @@ export default function LoginPage() {
       />
       <InputBox
         placeholder={"비밀번호"}
+        type="password"
         value={loginState.password}
         onChange={(e) => {
           setLoginState({ ...loginState, password: e.target.value });
