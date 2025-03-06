@@ -3,6 +3,8 @@
   max-width: 800px;
   padding: 4px;
 
+  height: auto;
+
   display: flex;
   flex: 1;
   justify-content: center;
