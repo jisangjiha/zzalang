@@ -12,9 +12,8 @@ form {
   display: flex;
   flex-direction: column;
   margin: 4px 0;
-  p {
-    margin: 0;
-    font-size: small;
-    color: red;
-  }
+}
+
+.errorMessage {
+  color: red;
 }

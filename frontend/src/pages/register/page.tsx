@@ -7,23 +7,12 @@ import InputBox from "../../components/InputBox";
 
 import styles from "../page.module.css";
 
-//가입 완료 되면 alert 가입 완료 되었다고---------------완
-//실패하면 페이지 넘어가지 않게!-----------------------완
-//pr
-
-//에러메시지(helper text) 진짜일때만------------------완
-//안맞으면 회원가입못하게
-//비밀번호 *으로 > input type=password
-
-//login
-//비밀번호 *으로 > input type=password
-
-//main branch = layout: footer 바닥에 붙게
-
 //mypage - apt PATCH
 //구색맞추기
 //개인정보 수정
 
+// 오류 메시지 나오긴 했는데, 정확히 어디서 틀렸는 지 모름
+// footer 바닥에 붙게 잘 한 건지,,
 export default function RegisterPage() {
   const navigate = useNavigate();
   const { setToken } = useContext(AuthContext);
@@ -33,10 +22,7 @@ export default function RegisterPage() {
     password: "",
     passwordConfirmation: "",
   });
-
-  const nameRegExp = /^[ㄱ-ㅎ가-힣a-zA-Z]{2,}$/;
-  const handleRegExp = /^[a-zA-z0-9]{4,12}$/;
-  const passwordRegExp = /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,25}$/;
+  const [errorMessage, setErrorMessage] = useState("");
 
   return (
     <form
@@ -55,6 +41,11 @@ export default function RegisterPage() {
             passwordConfirmation: registerData.passwordConfirmation,
           }),
         }).then(async (res) => {
+          if (!res.ok) {
+            const { message } = await res.json();
+            setErrorMessage(message);
+            return;
+          }
           const data = await res.json();
           setToken(data.token);
           if (!data.message) {
@@ -76,11 +67,6 @@ export default function RegisterPage() {
             setRegisterData({ ...registerData, name: e.target.value });
           }}
         />
-        <p>
-          {registerData.name.length && !nameRegExp.test(registerData.name)
-            ? "두 글자 이상 문자만 입력하세요"
-            : ""}
-        </p>
       </div>
       <div className={styles.formBox}>
         <label>handle</label>
@@ -91,11 +77,6 @@ export default function RegisterPage() {
             setRegisterData({ ...registerData, handle: e.target.value });
           }}
         />
-        <p>
-          {registerData.handle.length && !handleRegExp.test(registerData.handle)
-            ? "4-12사이 대소문자 또는 숫자만 입력해 주세요"
-            : ""}
-        </p>
       </div>
       <div className={styles.formBox}>
         <label>password</label>
@@ -107,15 +88,6 @@ export default function RegisterPage() {
             setRegisterData({ ...registerData, password: e.target.value });
           }}
         />
-        <p>
-          {registerData.password.length
-            ? registerData.handle === registerData.password
-              ? "handle과 같을 수 없습니다"
-              : !passwordRegExp.test(registerData.password)
-              ? "숫자+영문자+특수문자 조합으로 8자리 이상 입력해주세요"
-              : ""
-            : ""}
-        </p>
       </div>
       <div className={styles.formBox}>
         <label>password confirmation</label>
@@ -130,13 +102,8 @@ export default function RegisterPage() {
             });
           }}
         />
-        <p>
-          {registerData.passwordConfirmation.length &&
-          registerData.password !== registerData.passwordConfirmation
-            ? "비밀번호가 일치하지 않습니다"
-            : ""}
-        </p>
       </div>
+      <p className={styles.errorMessage}>{errorMessage}</p>
       <Button type="submit">회원가입</Button>
     </form>
   );
