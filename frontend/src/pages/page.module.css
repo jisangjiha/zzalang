@@ -3,3 +3,17 @@
   justify-content: center;
   flex-direction: column;
 }
+
+form {
+  min-width: 50%;
+}
+
+.formBox {
+  display: flex;
+  flex-direction: column;
+  margin: 4px 0;
+}
+
+.errorMessage {
+  color: red;
+}
