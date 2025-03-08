@@ -3,84 +3,61 @@ export default function MainPage() {
     <main>
       main
       <br />
-      d
+      test
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
+      try scroll
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
       <br />
-      d
-      <br />d
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      test
     </main>
   );
 }
