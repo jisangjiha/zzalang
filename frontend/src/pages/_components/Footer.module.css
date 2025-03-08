@@ -6,5 +6,8 @@
   justify-content: center;
   align-items: center;
 
-  background-color: salmon;
+  background-color: var(--white);
+  border-top: 1px solid var(--line-light-gray);
+
+  color: var(--font-gray);
 }

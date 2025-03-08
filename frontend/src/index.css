@@ -2,6 +2,8 @@ html,
 body {
   margin: 0;
   height: 100%;
+
+  font-size: 12px;
 }
 
 *,
@@ -17,4 +19,14 @@ body {
   align-items: center;
   flex-direction: column;
   justify-content: space-between;
+}
+
+* {
+  --white: #ffffff;
+  --befor-black: #1f1f1f;
+  --black: #000000;
+  --line-light-gray: #e5e5e5;
+  --line-bolder-gray: #5e5e5e;
+  --font-gray: #979797;
+  --danger: #f14c61;
 }

@@ -1,7 +1,8 @@
 .header {
-  height: 40px;
+  min-height: 60px;
   width: 100%;
-  padding: 4px 20px;
+  padding: 0px 60px;
+  position: relative;
 
   display: flex;
   justify-content: space-between;
@@ -10,7 +11,10 @@
   position: sticky;
   top: 0;
 
-  background-color: salmon;
+  background-color: var(--white);
+  border-bottom: 1px solid var(--line-gray);
+
+  font-size: 14px;
 
   & a {
     background-color: transparent;
@@ -23,8 +27,11 @@
   display: flex;
   align-items: center;
 
+  font-size: 20px;
+  font-weight: bold;
+
   & img {
-    margin: 0 4px 0 0;
+    margin: 0 8px 0 0;
   }
 }
 
@@ -34,6 +41,12 @@
 
   & a {
     margin: 0px 8px;
-    border: 0;
+    border: 1px solid var(--line-light-gray);
+    border-radius: 20px;
+    padding: 8px 8px;
+
+    &:hover {
+      border: 1px solid var(--line-bolder-gray);
+    }
   }
 }
