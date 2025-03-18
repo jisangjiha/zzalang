@@ -48,12 +48,9 @@ export default function RegisterPage() {
           }
           const data = await res.json();
           setToken(data.token);
-          if (!data.message) {
+          if (errorMessage === "") {
             navigate("/");
-            alert("가입이 완료되었습니다:)");
           }
-          // 빈칸에 따라 다른 알람 문구가 나오면 더 좋을듯?
-          alert("가입에 실패하였습니다:(");
         });
       }}
     >
