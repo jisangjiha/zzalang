@@ -36,9 +36,9 @@ export default function LoginPage() {
         });
       }}
     >
-      <div>로그인</div>
+      <div className={styles.pageName}>로그인</div>
       <InputBox
-        placeholder={"@닉네임"}
+        placeholder={"아이디"}
         value={loginState.handle}
         onChange={(e) => {
           setLoginState({
