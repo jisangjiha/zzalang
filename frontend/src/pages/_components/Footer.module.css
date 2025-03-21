@@ -7,7 +7,7 @@
   align-items: center;
 
   background-color: var(--white);
-  border-top: 1px solid var(--line-light-gray);
+  border-top: 1px solid var(--border-light-gray);
 
   color: var(--font-gray);
 }
