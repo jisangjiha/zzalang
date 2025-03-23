@@ -2,18 +2,18 @@
   display: flex;
   justify-content: center;
   flex-direction: column;
-}
 
-form {
   min-width: 50%;
 }
 
-.formBox {
-  display: flex;
-  flex-direction: column;
-  margin: 4px 0;
+.pageName {
+  margin-bottom: 40px;
+
+  font-size: 40px;
+  font-weight: bold;
+  text-align: center;
 }
 
 .errorMessage {
-  color: red;
+  color: var(--danger);
 }
