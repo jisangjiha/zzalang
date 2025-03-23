@@ -14,7 +14,9 @@ export default function LoginPage() {
     handle: "",
     password: "",
   });
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  );
 
   return (
     <form
@@ -38,9 +40,7 @@ export default function LoginPage() {
           }
           const data = await res.json();
           setToken(data.token);
-          if (errorMessage === "") {
-            navigate("/");
-          }
+          navigate("/");
         });
       }}
     >

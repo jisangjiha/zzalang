@@ -22,7 +22,9 @@ export default function RegisterPage() {
     password: "",
     passwordConfirmation: "",
   });
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  );
 
   return (
     <form
@@ -48,9 +50,7 @@ export default function RegisterPage() {
           }
           const data = await res.json();
           setToken(data.token);
-          if (errorMessage === "") {
-            navigate("/");
-          }
+          navigate("/");
         });
       }}
     >
