@@ -14,6 +14,9 @@ export default function LoginPage() {
     handle: "",
     password: "",
   });
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined
+  );
 
   return (
     <form
@@ -30,15 +33,20 @@ export default function LoginPage() {
             password: loginState.password,
           }),
         }).then(async (res) => {
+          if (!res.ok) {
+            const { message } = await res.json();
+            setErrorMessage(message);
+            return;
+          }
           const data = await res.json();
           setToken(data.token);
           navigate("/");
         });
       }}
     >
-      <div>로그인</div>
+      <div className={styles.pageName}>로그인</div>
       <InputBox
-        placeholder={"@닉네임"}
+        placeholder={"아이디"}
         value={loginState.handle}
         onChange={(e) => {
           setLoginState({
@@ -55,6 +63,7 @@ export default function LoginPage() {
           setLoginState({ ...loginState, password: e.target.value });
         }}
       />
+      <p className={styles.errorMessage}>{errorMessage}</p>
       <Button type="submit">로그인</Button>
     </form>
   );
