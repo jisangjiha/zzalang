@@ -6,7 +6,7 @@
   border-radius: 4px;
   padding: 0 12px;
 
-  background-color: var(--befor-black);
+  background-color: var(--before-black);
   color: var(--white);
 
   &:hover {

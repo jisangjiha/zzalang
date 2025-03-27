@@ -25,8 +25,8 @@ body {
   --white: #ffffff;
   --before-black: #1f1f1f;
   --black: #000000;
-  --line-light-gray: #e5e5e5;
-  --border-bolder-gray: #5e5e5e;
+  --border-light-gray: #e5e5e5;
+  --border-dark-gray: #5e5e5e;
   --font-gray: #979797;
   --danger: #f14c61;
 }
