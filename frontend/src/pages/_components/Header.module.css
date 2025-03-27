@@ -12,7 +12,7 @@
   top: 0;
 
   background-color: var(--white);
-  border-bottom: 1px solid var(--line-gray);
+  border-bottom: 1px solid var(--border-light-gray);
 
   font-size: 14px;
 
@@ -39,14 +39,18 @@
   display: flex;
   align-items: center;
 
+  & div {
+    margin: 0px 8px;
+  }
+
   & a {
     margin: 0px 8px;
-    border: 1px solid var(--line-light-gray);
+    border: 1px solid var(--border-light-gray);
     border-radius: 20px;
     padding: 8px 8px;
 
     &:hover {
-      border: 1px solid var(--line-bolder-gray);
+      border: 1px solid var(--border-dark-gray);
     }
   }
 }
