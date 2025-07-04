@@ -27,6 +27,7 @@ body {
   --black: #000000;
   --border-light-gray: #e5e5e5;
   --border-dark-gray: #5e5e5e;
+  --bg-light-gray: #f5f5f5;
   --font-gray: #979797;
   --danger: #f14c61;
 }

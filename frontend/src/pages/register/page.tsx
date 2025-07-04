@@ -55,21 +55,24 @@ export default function RegisterPage() {
     >
       <div className={styles.pageName}>회원가입</div>
       <InputBox
-        placeholder={"이름"}
+        label="이름"
+        placeholder="이름을 입력하세요"
         value={registerData.name}
         onChange={(e) => {
           setRegisterData({ ...registerData, name: e.target.value });
         }}
       />
       <InputBox
-        placeholder={"아이디"}
+        label="아이디"
+        placeholder="아이디를 입력하세요"
         value={registerData.handle}
         onChange={(e) => {
           setRegisterData({ ...registerData, handle: e.target.value });
         }}
       />
       <InputBox
-        placeholder={"비밀번호"}
+        label="비밀번호"
+        placeholder="비밀번호를 입력하세요"
         type="password"
         value={registerData.password}
         onChange={(e) => {
@@ -77,7 +80,8 @@ export default function RegisterPage() {
         }}
       />
       <InputBox
-        placeholder={"비밀번호 확인"}
+        label="비밀번호 확인"
+        placeholder="비밀번호를 한 번 더 입력하세요"
         type="password"
         value={registerData.passwordConfirmation}
         onChange={(e) => {
