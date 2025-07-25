@@ -60,8 +60,8 @@ export default function Header() {
         </div>
       ) : (
         <div className={styles.identify}>
-          <Link to="/register">회원가입</Link>
           <Link to="/login">로그인</Link>
+          <Link to="/register">회원가입</Link>
         </div>
       )}
     </header>
