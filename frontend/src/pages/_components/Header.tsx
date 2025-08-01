@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 
-import { AuthContext } from "../../contexts/auth";
+import { AuthContext } from "../../contexts/auth-context";
 import logo from "../../assets/casper.svg";
 
 import styles from "./Header.module.css";

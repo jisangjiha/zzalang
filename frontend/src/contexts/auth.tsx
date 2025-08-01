@@ -1,16 +1,5 @@
-import {
-  createContext,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
-
-export const AuthContext = createContext<{
-  token: string | null;
-  setToken: (t: string) => void;
-  clearToken: () => void;
-}>({ token: null, setToken: () => {}, clearToken: () => {} });
+import { ReactNode, useCallback, useEffect, useState } from "react";
+import { AuthContext } from "./auth-context";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
