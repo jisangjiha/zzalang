@@ -1,5 +1,6 @@
 import styles from "./AuthRouter.module.css";
 import { Link } from "react-router-dom";
+import { cn } from "../utils/className";
 
 type AuthRouterProps = {
   type: "login" | "register";
@@ -26,7 +27,7 @@ export default function AuthRouter({ type, className }: AuthRouterProps) {
   const props = LINK_PROPS[type];
 
   return (
-    <div className={`${styles.container} ${className || ""}`}>
+    <div className={cn(styles.container, className)}>
       <span className={styles.text}>{props.question}</span>
       <Link to={props.linkTo} className={styles.link}>
         {props.linkText}
