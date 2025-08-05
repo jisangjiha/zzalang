@@ -1,15 +1,12 @@
-import styles from "./AlternateAuthLink.module.css";
+import styles from "./AuthRouter.module.css";
 import { Link } from "react-router-dom";
 
-type AlternateAuthLinkProps = {
+type AuthRouterProps = {
   type: "login" | "register";
   className?: string;
 };
 
-export default function AlternateAuthLink({
-  type,
-  className,
-}: AlternateAuthLinkProps) {
+export default function AuthRouter({ type, className }: AuthRouterProps) {
   const isLoginPage = type === "login";
 
   return (
