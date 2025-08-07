@@ -67,32 +67,32 @@ export default function MyPage() {
   return (
     <form className={styles.container}>
       <div className={styles.pageName}>회원정보</div>
-      <div>이름</div>
       <InputBox
+        label="이름"
         value={myData.name}
         onChange={(e) => handleInputChange("name", e.target.value)}
       />
-      <div>닉네임</div>
       <InputBox
+        label="닉네임"
         value={myData.handle}
         onChange={(e) => handleInputChange("handle", e.target.value)}
       />
-      <div>현재 비밀번호</div>
       <InputBox
+        label="현재 비밀번호"
         type="password"
         placeholder="현재 비밀번호를 입력하세요"
         value={myData.currentPassword}
         onChange={(e) => handleInputChange("currentPassword", e.target.value)}
       />
-      <div>새 비밀번호</div>
       <InputBox
+        label="새 비밀번호"
         type="password"
         placeholder="새 비밀번호를 입력하세요"
         value={myData.newPassword}
         onChange={(e) => handleInputChange("newPassword", e.target.value)}
       />
-      <div>새 비밀번호 확인</div>
       <InputBox
+        label="새 비밀번호 확인"
         type="password"
         placeholder="새 비밀번호를 한 번 더 입력하세요"
         value={myData.newPasswordConfirmation}
