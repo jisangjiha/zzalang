@@ -46,7 +46,8 @@ export default function LoginPage() {
     >
       <div className={styles.pageName}>로그인</div>
       <InputBox
-        placeholder={"아이디"}
+        label="아이디"
+        placeholder="아이디를 입력하세요"
         value={loginState.handle}
         onChange={(e) => {
           setLoginState({
@@ -56,7 +57,8 @@ export default function LoginPage() {
         }}
       />
       <InputBox
-        placeholder={"비밀번호"}
+        label="비밀번호"
+        placeholder="비밀번호를 입력하세요"
         type="password"
         value={loginState.password}
         onChange={(e) => {

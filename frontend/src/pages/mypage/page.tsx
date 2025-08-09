@@ -69,11 +69,13 @@ export default function MyPage() {
       <div className={styles.pageName}>회원정보</div>
       <InputBox
         label="이름"
+        placeholder="이름을 입력하세요"
         value={myData.name}
         onChange={(e) => handleInputChange("name", e.target.value)}
       />
       <InputBox
         label="닉네임"
+        placeholder="닉네임을 입력하세요"
         value={myData.handle}
         onChange={(e) => handleInputChange("handle", e.target.value)}
       />
