@@ -5,7 +5,6 @@ import { AuthContext } from "../../contexts/auth";
 import logo from "../../assets/casper.svg";
 
 import styles from "./Header.module.css";
-import HeaderButton from "../../components/HeaderButton";
 
 type User = {
   id: string;
@@ -55,8 +54,11 @@ export default function Header() {
       </Link>
       {user ? (
         <div className={styles.identify}>
-          <Link to="/mypage">{user.name}님 환영합니다</Link>
-          <HeaderButton onClick={handleLogout}>로그아웃</HeaderButton>
+          <div>{user.name}님</div>
+          <Link to="/mypage">마이페이지</Link>
+          <Link to="/" onClick={handleLogout}>
+            로그아웃
+          </Link>
         </div>
       ) : (
         <div className={styles.identify}>
