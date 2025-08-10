@@ -1,0 +1,22 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.text {
+  color: var(--font-dark-gray);
+}
+
+.link {
+  font-weight: 500;
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.link:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}

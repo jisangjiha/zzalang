@@ -1,12 +1,13 @@
 .button {
   height: 40px;
 
+  margin-top: 28px;
   margin-bottom: 12px;
   border: 0;
-  border-radius: 4px;
+  border-radius: 8px;
   padding: 0 12px;
 
-  background-color: var(--befor-black);
+  background-color: var(--before-black);
   color: var(--white);
 
   &:hover {
