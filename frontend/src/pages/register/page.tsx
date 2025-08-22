@@ -15,6 +15,7 @@ import styles from "../page.module.css";
 export default function RegisterPage() {
   const navigate = useNavigate();
   const { setToken } = useContext(AuthContext);
+
   const [registerData, setRegisterData] = useState({
     name: "",
     handle: "",
@@ -25,12 +26,14 @@ export default function RegisterPage() {
     undefined
   );
 
+  const devApi = import.meta.env.VITE_API_URL;
+
   return (
     <form
       className={styles.container}
       onSubmit={(e) => {
         e.preventDefault();
-        fetch("http://localhost:8787/v1/register", {
+        fetch(`${devApi}/v1/register`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

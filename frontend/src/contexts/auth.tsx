@@ -8,20 +8,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // 개발 모드에서 자동 로그인
   useEffect(() => {
     const isDevelopment = import.meta.env.DEV;
-    if (isDevelopment && !token) {
+    const devHandle = import.meta.env.VITE_DEV_HANDLE;
+    const devPassword = import.meta.env.VITE_DEV_PASSWORD;
+
+    if (isDevelopment && !token && devHandle && devPassword) {
       // 개발용 고정 계정으로 자동 로그인
       const autoLogin = async () => {
         try {
-          const response = await fetch("http://localhost:8787/v1/sign-in", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              handle: "jisang", // 개발용 계정
-              password: "jisang123", // 개발용 비밀번호
-            }),
-          });
+          const response = await fetch(
+            `${import.meta.env.VITE_API_URL}/v1/sign-in`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                handle: devHandle,
+                password: devPassword,
+              }),
+            }
+          );
 
           if (response.ok) {
             const data = await response.json();

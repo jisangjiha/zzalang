@@ -16,6 +16,8 @@ export default function PostingPage() {
   );
   const [isLoading, setIsLoading] = useState(false);
 
+  const devApi = import.meta.env.VITE_API_URL;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -37,7 +39,7 @@ export default function PostingPage() {
         headers["Authorization"] = `Bearer ${token}`;
       }
 
-      const response = await fetch("http://localhost:8787/v1/posts", {
+      const response = await fetch(`${devApi}/v1/posts`, {
         method: "POST",
         headers,
         body: JSON.stringify({

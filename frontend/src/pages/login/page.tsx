@@ -10,6 +10,7 @@ import styles from "../page.module.css";
 export default function LoginPage() {
   const navigate = useNavigate();
   const { setToken } = useContext(AuthContext);
+
   const [loginState, setLoginState] = useState({
     handle: "",
     password: "",
@@ -18,12 +19,14 @@ export default function LoginPage() {
     undefined
   );
 
+  const devApi = import.meta.env.VITE_API_URL;
+
   return (
     <form
       className={styles.container}
       onSubmit={(e) => {
         e.preventDefault();
-        fetch("http://localhost:8787/v1/sign-in", {
+        fetch(`${devApi}/v1/sign-in`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

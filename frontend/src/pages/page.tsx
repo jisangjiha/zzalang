@@ -30,10 +30,12 @@ export default function MainPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [userHandles, setUserHandles] = useState<Record<string, string>>({});
 
+  const devApi = import.meta.env.VITE_API_URL;
+
   // 사용자 정보를 가져오는 함수
   const fetchUserHandle = async (userId: string): Promise<string> => {
     try {
-      const response = await fetch(`http://localhost:8787/v1/users/${userId}`);
+      const response = await fetch(`${devApi}/v1/users/${userId}`);
       if (response.ok) {
         const user: User = await response.json();
         return user.handle;
@@ -47,7 +49,7 @@ export default function MainPage() {
   // 게시글 목록을 가져오는 함수
   const fetchPosts = async () => {
     try {
-      const response = await fetch("http://localhost:8787/v1/posts");
+      const response = await fetch(`${devApi}/v1/posts`);
       const data: PostsResponse = await response.json();
       setPosts(data.posts);
       setTotal(data.total);
