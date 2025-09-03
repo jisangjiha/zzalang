@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 
-import { AuthContext } from "../../contexts/auth";
+import { AuthContext } from "../../contexts/auth-context";
 import logo from "../../assets/casper.svg";
 
 import styles from "./Header.module.css";
@@ -15,16 +15,19 @@ type User = {
 };
 
 export default function Header() {
+  const navigate = useNavigate();
+
   const { token, clearToken } = useContext(AuthContext);
   const [user, setUser] = useState<User | null>(null);
-  const navigate = useNavigate();
+
+  const devApi = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     if (!token) {
       setUser(null);
       return;
     }
-    fetch("http://localhost:8787/v1/me", {
+    fetch(`${devApi}/v1/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -34,7 +37,7 @@ export default function Header() {
   }, [token]);
 
   const handleLogout = () => {
-    fetch("http://localhost:8787/v1/sign-out", {
+    fetch(`${devApi}/v1/sign-out`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
