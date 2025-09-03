@@ -1,8 +1,21 @@
-import { ComponentProps } from "react";
+import { ComponentProps, useId } from "react";
 import styles from "./InputBox.module.css";
 
-type InputProps = ComponentProps<"input">;
+type InputProps = ComponentProps<"input"> & {
+  label?: string;
+};
 
-export default function InputBox({ ...props }: InputProps) {
-  return <input {...props} className={styles.inputBox} />;
+export default function InputBox({ label, ...props }: InputProps) {
+  const inputId = useId();
+
+  return (
+    <div className={styles.container}>
+      {label && (
+        <label className={styles.label} htmlFor={inputId}>
+          {label}
+        </label>
+      )}
+      <input {...props} className={styles.inputBox} id={inputId} />
+    </div>
+  );
 }
