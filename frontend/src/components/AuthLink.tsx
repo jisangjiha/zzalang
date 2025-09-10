@@ -1,14 +1,14 @@
-import styles from "./AuthRouter.module.css";
+import styles from "./AuthLink.module.css";
 import { Link } from "react-router-dom";
 import { cn } from "../utils/className";
 
-type AuthRouterProps = {
+type AuthLinkProps = {
   type: "login" | "register";
   className?: string;
 };
 
 const LINK_PROPS: Record<
-  AuthRouterProps["type"],
+  AuthLinkProps["type"],
   { question: string; linkText: string; linkTo: string }
 > = {
   login: {
@@ -23,7 +23,7 @@ const LINK_PROPS: Record<
   },
 } as const;
 
-export default function AuthRouter({ type, className }: AuthRouterProps) {
+export default function AuthLink({ type, className }: AuthLinkProps) {
   const props = LINK_PROPS[type];
 
   return (
