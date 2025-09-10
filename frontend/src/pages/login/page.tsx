@@ -4,7 +4,7 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../../contexts/auth-context";
 import Button from "../../components/Button";
 import InputBox from "../../components/InputBox";
-import AlternateAuthLink from "../../components/AlternateAuthLink";
+import AuthLink from "../../components/AuthLink";
 
 import styles from "../page.module.css";
 
@@ -71,7 +71,7 @@ export default function LoginPage() {
       />
       <p className={styles.errorMessage}>{errorMessage}</p>
       <Button type="submit">로그인</Button>
-      <AlternateAuthLink type="login" />
+      <AuthLink type="login" />
     </form>
   );
 }
