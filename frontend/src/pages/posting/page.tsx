@@ -16,7 +16,7 @@ export default function PostingPage() {
   );
   const [isLoading, setIsLoading] = useState(false);
 
-  const devApi = import.meta.env.VITE_API_URL;
+  const devApi = import.meta.env.VITE_API_BASE_URL;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

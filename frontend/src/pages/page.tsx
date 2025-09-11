@@ -41,7 +41,7 @@ export default function MainPage() {
         return user.handle;
       }
     } catch (error) {
-      console.error(`Failed to fetch user ${userId}:`, error);
+      console.log(`Failed to fetch user ${userId}:`, error);
     }
     return "Unknown User";
   };
@@ -70,7 +70,7 @@ export default function MainPage() {
       setUserHandles(handles);
       setIsLoading(false);
     } catch (error) {
-      console.error("Failed to fetch posts:", error);
+      console.log("Failed to fetch posts:", error);
       setIsLoading(false);
     }
   };
