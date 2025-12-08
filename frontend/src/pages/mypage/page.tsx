@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../contexts/auth-context";
-
 import Button from "../../components/Button";
 import InputBox from "../../components/InputBox";
 
