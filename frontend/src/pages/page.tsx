@@ -30,7 +30,7 @@ export default function MainPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [userHandles, setUserHandles] = useState<Record<string, string>>({});
 
-  const devApi = import.meta.env.VITE_API_URL;
+  const devApi = import.meta.env.VITE_API_BASE_URL;
 
   // 사용자 정보를 가져오는 함수
   const fetchUserHandle = async (userId: string): Promise<string> => {

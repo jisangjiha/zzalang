@@ -33,6 +33,7 @@ export default function RegisterPage() {
     <form
       className={styles.container}
       onSubmit={(e) => {
+        console.log("submit");
         e.preventDefault();
         fetch(`${devApi}/v1/register`, {
           method: "POST",
