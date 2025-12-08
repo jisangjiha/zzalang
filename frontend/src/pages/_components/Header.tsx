@@ -20,7 +20,7 @@ export default function Header() {
   const { token, clearToken } = useContext(AuthContext);
   const [user, setUser] = useState<User | null>(null);
 
-  const devApi = import.meta.env.VITE_API_URL;
+  const devApi = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     if (!token) {
