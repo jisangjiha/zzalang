@@ -1,8 +1,9 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../contexts/auth-context";
 import Button from "../../components/Button";
-import styles from "../page.module.css";
 import InputBox from "../../components/InputBox";
+
+import styles from "../page.module.css";
 
 export default function MyPage() {
   const { token } = useContext(AuthContext);
@@ -24,8 +25,10 @@ export default function MyPage() {
     }));
   };
 
+  const devApi = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(() => {
-    fetch("http://localhost:8787/v1/me", {
+    fetch(`${devApi}/v1/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -41,7 +44,7 @@ export default function MyPage() {
   }, [token]);
 
   const handleModify = () => {
-    fetch("http://localhost:8787/v1/me", {
+    fetch(`${devApi}/v1/me`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",

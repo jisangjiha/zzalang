@@ -20,7 +20,7 @@ export default function LoginPage() {
     undefined
   );
 
-  const devApi = import.meta.env.VITE_API_URL;
+  const devApi = import.meta.env.VITE_API_BASE_URL;
 
   return (
     <form
