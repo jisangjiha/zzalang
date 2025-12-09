@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
-import { AuthContext } from "../../contexts/auth-context";
+import { AuthContext } from "../contexts/auth-context";
 
 import { toast } from "react-toastify";
+import styles from "./PostingButton.module.css";
 
 export default function PostingButton() {
   const navigate = useNavigate();
@@ -18,5 +19,9 @@ export default function PostingButton() {
     navigate("/posting");
   };
 
-  return <button onClick={handlePostingClick}>글쓰기</button>;
+  return (
+    <button className={styles.button} onClick={handlePostingClick}>
+      글쓰기
+    </button>
+  );
 }

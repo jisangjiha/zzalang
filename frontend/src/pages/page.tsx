@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import PostingButton from "./_components/PostingButton";
+import PostingButton from "../components/PostingButton";
 import styles from "./page.module.css";
 
 interface Post {
@@ -81,24 +81,33 @@ export default function MainPage() {
 
   return (
     <main className={styles.mainContainer}>
-      <PostingButton />
-      <section>인기글</section>
+      <div className={styles.boardHeader}>
+        <h1>게시판</h1>
+        <PostingButton />
+      </div>
+      {/**<section>인기글</section>*/}
       <section>전체글({total})</section>
+      <div className={styles.postHeaders}>
+        <div>제목</div>
+        <div>내용</div>
+        <div>작성일</div>
+        <div>작성자</div>
+      </div>
       {isLoading ? (
         <div>Loading...</div>
       ) : (
-        <div>
+        <>
           {posts.map((post) => (
-            <div key={post.id}>
+            <div key={post.id} className={styles.post}>
               <div>{post.title}</div>
               <div>{post.content}</div>
               <div>{new Date(post.createdAt).toLocaleDateString()}</div>
               <div>{userHandles[post.authorId] || "Loading..."}</div>
             </div>
           ))}
-        </div>
+        </>
       )}
-      <section>페이지네이션</section>
+      <section className={styles.pagination}>페이지네이션</section>
     </main>
   );
 }

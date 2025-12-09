@@ -18,10 +18,45 @@
   color: var(--danger);
 }
 
+/* main */
+
 .mainContainer {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   flex-direction: column;
 
-  min-width: 50%;
+  min-width: 100%;
+}
+
+.boardHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.postHeaders,
+.post {
+  display: grid;
+  grid-template-columns: 2fr 5fr 2fr 2fr;
+  column-gap: 12px;
+  align-items: center;
+}
+
+.postHeaders {
+  border-bottom: 1px solid var(--border-light-gray);
+  padding: 10px 0;
+  font-weight: bold;
+}
+
+.post {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-light-gray);
+}
+
+.pagination {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
