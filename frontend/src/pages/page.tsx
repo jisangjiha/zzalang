@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import PostingButton from "../components/PostingButton";
+
 import styles from "./page.module.css";
 
 interface Post {

@@ -21,7 +21,7 @@ export default function PostingButton() {
 
   return (
     <button className={styles.button} onClick={handlePostingClick}>
-      글쓰기
+      + 글쓰기
     </button>
   );
 }
