@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import PostingButton from "../components/PostingButton";
 
 import styles from "./page.module.css";
+import PageButton from "../components/PageButton";
 
 interface Post {
   id: string;
@@ -137,32 +138,28 @@ export default function MainPage() {
         </>
       )}
       <section className={styles.pagination}>
-        <button
-          className={styles.pageButton}
+        <PageButton
           disabled={currentPage === 1}
           onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
         >
-          이전
-        </button>
+          ＜
+        </PageButton>
         {pageNumbers.map((page) => (
-          <button
+          <PageButton
             key={page}
-            className={`${styles.pageButton} ${
-              page === currentPage ? styles.pageButtonActive : ""
-            }`}
+            active={page === currentPage}
             onClick={() => setCurrentPage(page)}
             disabled={page === currentPage}
           >
             {page}
-          </button>
+          </PageButton>
         ))}
-        <button
-          className={styles.pageButton}
+        <PageButton
           disabled={currentPage >= totalPage}
           onClick={() => setCurrentPage((p) => (p < totalPage ? p + 1 : p))}
         >
-          다음
-        </button>
+          ＞
+        </PageButton>
       </section>
     </main>
   );
