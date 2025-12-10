@@ -35,6 +35,11 @@
   align-items: center;
 }
 
+.postSection {
+  /* 로딩중인 경우 페이지네이션 위치 고정을 위함 */
+  min-height: 400px;
+}
+
 .postHeaders,
 .post {
   display: grid;
@@ -54,10 +59,16 @@
   border-bottom: 1px solid var(--border-light-gray);
 }
 
+.loading {
+  padding: 20px 0;
+}
+
 .pagination {
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
   gap: 8px;
+
+  margin-top: 10px;
 }

@@ -117,26 +117,28 @@ export default function MainPage() {
       </div>
       {/**<section>인기글</section>*/}
       <section>전체글({totalPosts})</section>
-      <div className={styles.postHeaders}>
-        <div>제목</div>
-        <div>내용</div>
-        <div>작성일</div>
-        <div>작성자</div>
+      <div className={styles.postSection}>
+        <div className={styles.postHeaders}>
+          <div>제목</div>
+          <div>내용</div>
+          <div>작성일</div>
+          <div>작성자</div>
+        </div>
+        {isLoading ? (
+          <div className={styles.loading}>Loading...</div>
+        ) : (
+          <>
+            {posts.map((post) => (
+              <div key={post.id} className={styles.post}>
+                <div>{post.title}</div>
+                <div>{post.content}</div>
+                <div>{new Date(post.createdAt).toLocaleDateString()}</div>
+                <div>{userHandles[post.authorId] || "Loading..."}</div>
+              </div>
+            ))}
+          </>
+        )}
       </div>
-      {isLoading ? (
-        <div>Loading...</div>
-      ) : (
-        <>
-          {posts.map((post) => (
-            <div key={post.id} className={styles.post}>
-              <div>{post.title}</div>
-              <div>{post.content}</div>
-              <div>{new Date(post.createdAt).toLocaleDateString()}</div>
-              <div>{userHandles[post.authorId] || "Loading..."}</div>
-            </div>
-          ))}
-        </>
-      )}
       <section className={styles.pagination}>
         <PageButton
           disabled={currentPage === 1}
