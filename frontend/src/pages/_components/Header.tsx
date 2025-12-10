@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from "react";
 
 import { AuthContext } from "../../contexts/auth-context";
 import logo from "../../assets/casper.svg";
+import Category from "./Category";
 
 import styles from "./Header.module.css";
 
@@ -50,25 +51,28 @@ export default function Header() {
   };
 
   return (
-    <header className={styles.header}>
-      <Link to="/" className={styles.zzalang}>
-        <img src={logo} height={30} width={30} />
-        <div>zzalang</div>
-      </Link>
-      {user ? (
-        <div className={styles.identify}>
-          <div>{user.name}님</div>
-          <Link to="/mypage">마이페이지</Link>
-          <Link to="/" onClick={handleLogout}>
-            로그아웃
-          </Link>
-        </div>
-      ) : (
-        <div className={styles.identify}>
-          <Link to="/login">로그인</Link>
-          <Link to="/register">회원가입</Link>
-        </div>
-      )}
-    </header>
+    <>
+      <header className={styles.header}>
+        <Link to="/" className={styles.zzalang}>
+          <img src={logo} height={30} width={30} />
+          <div>zzalang</div>
+        </Link>
+        {user ? (
+          <div className={styles.identify}>
+            <div>{user.name}님</div>
+            <Link to="/mypage">마이페이지</Link>
+            <Link to="/" onClick={handleLogout}>
+              로그아웃
+            </Link>
+          </div>
+        ) : (
+          <div className={styles.identify}>
+            <Link to="/login">로그인</Link>
+            <Link to="/register">회원가입</Link>
+          </div>
+        )}
+      </header>
+      <Category />
+    </>
   );
 }

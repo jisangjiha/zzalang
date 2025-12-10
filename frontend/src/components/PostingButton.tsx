@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
-import { AuthContext } from "../../contexts/auth-context";
+import { AuthContext } from "../contexts/auth-context";
 
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
+import styles from "./PostingButton.module.css";
 
 export default function PostingButton() {
   const navigate = useNavigate();
@@ -20,14 +20,8 @@ export default function PostingButton() {
   };
 
   return (
-    <>
-      <button onClick={handlePostingClick}>글쓰기</button>
-      <ToastContainer
-        position="top-center"
-        aria-label="ToastContainer"
-        theme="colored"
-        autoClose={3000}
-      />
-    </>
+    <button className={styles.button} onClick={handlePostingClick}>
+      + 글쓰기
+    </button>
   );
 }

@@ -24,6 +24,9 @@ const router = createBrowserRouter(
       <Route path="login" element={<LoginPage />} />
       <Route path="posting" element={<PostingPage />} />
       <Route path="mypage" element={<MyPage />} />
+      <Route path="category-daily" element={<MainPage />} />
+      <Route path="category-qna" element={<MainPage />} />
+      <Route path="category-study" element={<MainPage />} />
     </Route>
   )
 );
