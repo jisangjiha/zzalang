@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/auth-context";
 import styles from "../page.module.css";
@@ -11,6 +11,12 @@ export default function PostingPage() {
     title: "",
     content: "",
   });
+
+  const categoryData = ["일상 공유", "질문과 답변", "스터디 모집"];
+  const [currentCategory, setCurrentCategory] = useState(categoryData[0]);
+  const handleOnChangeCategory = (e: ChangeEvent<HTMLSelectElement>) => {
+    setCurrentCategory(e.target.value);
+  };
 
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
@@ -66,6 +72,19 @@ export default function PostingPage() {
   return (
     <form className={styles.mainContainer} onSubmit={handleSubmit}>
       <div className={styles.postingContainer}>
+        <label className={styles.postingSelectCategory}>
+          <select
+            value={currentCategory}
+            onChange={handleOnChangeCategory}
+            className={styles.postingSelect}
+          >
+            {categoryData.map((data) => (
+              <option key={data} value={data}>
+                {data}
+              </option>
+            ))}
+          </select>
+        </label>
         <input
           className={styles.postingTitle}
           type="text"

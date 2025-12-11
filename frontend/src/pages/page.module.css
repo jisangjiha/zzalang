@@ -82,11 +82,30 @@
   gap: 20px;
 }
 
+.postingSelectCategory {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.postingSelect {
+  min-width: 160px;
+
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--border-light-gray);
+  border-radius: 8px;
+
+  background: var(--white);
+}
+
 .postingTitle {
   min-height: 20px;
   border: 0;
   border-bottom: 1px solid var(--border-light-gray);
   padding-bottom: 4px;
+
   font-weight: bold;
 
   &:focus {
