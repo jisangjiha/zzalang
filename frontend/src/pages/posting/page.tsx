@@ -1,15 +1,36 @@
-import { useState, useContext } from "react";
+import { useState, useContext, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import ReactQuill from "react-quill";
+
+import type { ComponentType } from "react";
 import { AuthContext } from "../../contexts/auth-context";
+
+import PostingButton from "../../components/PostingButton";
+
 import styles from "../page.module.css";
+import "react-quill/dist/quill.snow.css";
 
 export default function PostingPage() {
   const navigate = useNavigate();
   const { token } = useContext(AuthContext);
+
+  const QuillEditor = ReactQuill as unknown as ComponentType<{
+    value: string;
+    onChange: (value: string) => void;
+    className?: string;
+    theme?: string;
+    placeholder?: string;
+  }>;
   const [postingData, setPostingData] = useState({
     title: "",
     content: "",
   });
+
+  const categoryData = ["일상 공유", "질문과 답변", "스터디 모집"];
+  const [currentCategory, setCurrentCategory] = useState(categoryData[0]);
+  const handleOnChangeCategory = (e: ChangeEvent<HTMLSelectElement>) => {
+    setCurrentCategory(e.target.value);
+  };
 
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
@@ -63,26 +84,49 @@ export default function PostingPage() {
   };
 
   return (
-    <form className={styles.container} onSubmit={handleSubmit}>
-      <input
-        type="text"
-        placeholder="제목"
-        value={postingData.title}
-        onChange={(e) =>
-          setPostingData({ ...postingData, title: e.target.value })
-        }
-      />
-      <textarea
-        placeholder="내용"
-        value={postingData.content}
-        onChange={(e) =>
-          setPostingData({ ...postingData, content: e.target.value })
-        }
-      />
-      {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
-      <button type="submit" disabled={isLoading}>
-        {isLoading ? "등록 중..." : "등록하기"}
-      </button>
+    <form className={styles.mainContainer} onSubmit={handleSubmit}>
+      <div className={styles.postingContainer}>
+        <label className={styles.postingSelectCategory}>
+          <select
+            value={currentCategory}
+            onChange={handleOnChangeCategory}
+            className={styles.postingSelect}
+          >
+            {categoryData.map((data) => (
+              <option key={data} value={data}>
+                {data}
+              </option>
+            ))}
+          </select>
+        </label>
+        <input
+          className={styles.postingTitle}
+          type="text"
+          placeholder="제목을 입력하세요"
+          value={postingData.title}
+          onChange={(e) =>
+            setPostingData({ ...postingData, title: e.target.value })
+          }
+        />
+        <QuillEditor
+          className={styles.postingEditor}
+          theme="snow"
+          value={postingData.content}
+          onChange={(value: string) =>
+            setPostingData({ ...postingData, content: value })
+          }
+          placeholder="내용을 입력하세요"
+        />
+      </div>
+      <div className={styles.postingFooter}>
+        {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
+        <PostingButton
+          type="submit"
+          useAuthGuard={false}
+          disabled={isLoading}
+          text={isLoading ? "등록 중..." : "등록하기"}
+        />
+      </div>
     </form>
   );
 }

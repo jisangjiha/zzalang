@@ -72,3 +72,72 @@
 
   margin-top: 10px;
 }
+
+/* Posting */
+.postingContainer {
+  height: 80%;
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  gap: 20px;
+}
+
+.postingSelectCategory {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.postingSelect {
+  min-width: 160px;
+
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--border-light-gray);
+  border-radius: 8px;
+
+  background: var(--white);
+}
+
+.postingTitle {
+  min-height: 20px;
+  border: 0;
+  border-bottom: 1px solid var(--border-light-gray);
+  padding-bottom: 4px;
+
+  font-size: 18px;
+  font-weight: bold;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.postingEditor {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.postingEditor :global(.ql-toolbar.ql-snow) {
+  border: 1px solid var(--border-light-gray, #ddd) !important;
+  border-radius: 8px 8px 0 0;
+}
+
+.postingEditor :global(.ql-container.ql-snow) {
+  flex: 1;
+  min-height: 240px;
+  border: 1px solid var(--border-light-gray, #ddd) !important;
+  border-top: 0 !important;
+  border-radius: 0 0 8px 8px;
+  box-sizing: border-box;
+}
+
+.postingFooter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 4px;
+}
