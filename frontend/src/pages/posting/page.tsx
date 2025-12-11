@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/auth-context";
 import styles from "../page.module.css";
+import PostingButton from "../../components/PostingButton";
 
 export default function PostingPage() {
   const navigate = useNavigate();
@@ -63,7 +64,16 @@ export default function PostingPage() {
   };
 
   return (
-    <form className={styles.container} onSubmit={handleSubmit}>
+    <form className={styles.mainContainer} onSubmit={handleSubmit}>
+      <div className={styles.boardHeader}>
+        <h1></h1>
+        <PostingButton
+          type="submit"
+          useAuthGuard={false}
+          disabled={isLoading}
+          text={isLoading ? "등록 중..." : "등록하기"}
+        />
+      </div>
       <input
         type="text"
         placeholder="제목"
@@ -80,9 +90,6 @@ export default function PostingPage() {
         }
       />
       {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
-      <button type="submit" disabled={isLoading}>
-        {isLoading ? "등록 중..." : "등록하기"}
-      </button>
     </form>
   );
 }

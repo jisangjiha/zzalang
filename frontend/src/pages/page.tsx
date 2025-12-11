@@ -113,9 +113,9 @@ export default function MainPage() {
     <main className={styles.mainContainer}>
       <div className={styles.boardHeader}>
         <h1>게시판</h1>
-        <PostingButton />
+        <PostingButton text="+ 글쓰기" />
       </div>
-      {/**<section>인기글</section>*/}
+      {/* <section>인기글</section> */}
       <section>전체글({totalPosts})</section>
       <div className={styles.postSection}>
         <div className={styles.postHeaders}>
