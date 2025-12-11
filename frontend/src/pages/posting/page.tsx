@@ -1,12 +1,26 @@
 import { useState, useContext, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import ReactQuill from "react-quill";
+
+import type { ComponentType } from "react";
 import { AuthContext } from "../../contexts/auth-context";
-import styles from "../page.module.css";
+
 import PostingButton from "../../components/PostingButton";
+
+import styles from "../page.module.css";
+import "react-quill/dist/quill.snow.css";
 
 export default function PostingPage() {
   const navigate = useNavigate();
   const { token } = useContext(AuthContext);
+
+  const QuillEditor = ReactQuill as unknown as ComponentType<{
+    value: string;
+    onChange: (value: string) => void;
+    className?: string;
+    theme?: string;
+    placeholder?: string;
+  }>;
   const [postingData, setPostingData] = useState({
     title: "",
     content: "",
@@ -88,19 +102,20 @@ export default function PostingPage() {
         <input
           className={styles.postingTitle}
           type="text"
-          placeholder="제목"
+          placeholder="제목을 입력하세요"
           value={postingData.title}
           onChange={(e) =>
             setPostingData({ ...postingData, title: e.target.value })
           }
         />
-        <textarea
-          className={styles.postingContent}
-          placeholder="내용"
+        <QuillEditor
+          className={styles.postingEditor}
+          theme="snow"
           value={postingData.content}
-          onChange={(e) =>
-            setPostingData({ ...postingData, content: e.target.value })
+          onChange={(value: string) =>
+            setPostingData({ ...postingData, content: value })
           }
+          placeholder="내용을 입력하세요"
         />
       </div>
       <div className={styles.postingFooter}>
