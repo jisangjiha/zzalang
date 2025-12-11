@@ -65,8 +65,27 @@ export default function PostingPage() {
 
   return (
     <form className={styles.mainContainer} onSubmit={handleSubmit}>
-      <div className={styles.boardHeader}>
-        <h1></h1>
+      <div className={styles.postingContainer}>
+        <input
+          className={styles.postingTitle}
+          type="text"
+          placeholder="제목"
+          value={postingData.title}
+          onChange={(e) =>
+            setPostingData({ ...postingData, title: e.target.value })
+          }
+        />
+        <textarea
+          className={styles.postingContent}
+          placeholder="내용"
+          value={postingData.content}
+          onChange={(e) =>
+            setPostingData({ ...postingData, content: e.target.value })
+          }
+        />
+      </div>
+      <div className={styles.postingFooter}>
+        {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
         <PostingButton
           type="submit"
           useAuthGuard={false}
@@ -74,22 +93,6 @@ export default function PostingPage() {
           text={isLoading ? "등록 중..." : "등록하기"}
         />
       </div>
-      <input
-        type="text"
-        placeholder="제목"
-        value={postingData.title}
-        onChange={(e) =>
-          setPostingData({ ...postingData, title: e.target.value })
-        }
-      />
-      <textarea
-        placeholder="내용"
-        value={postingData.content}
-        onChange={(e) =>
-          setPostingData({ ...postingData, content: e.target.value })
-        }
-      />
-      {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
     </form>
   );
 }

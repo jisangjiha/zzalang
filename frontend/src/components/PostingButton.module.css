@@ -1,5 +1,6 @@
 .button {
   height: 40px;
+  width: max-content;
 
   border: 0;
   border-radius: 8px;
