@@ -35,6 +35,13 @@
   align-items: center;
 }
 
+.boardHeaderName {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
 .postSection {
   /* 로딩중인 경우 페이지네이션 위치 고정을 위함 */
   min-height: 400px;

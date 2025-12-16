@@ -112,11 +112,13 @@ export default function MainPage() {
   return (
     <main className={styles.mainContainer}>
       <div className={styles.boardHeader}>
-        <h1>게시판</h1>
+        <div className={styles.boardHeaderName}>
+          <h1>게시판</h1>
+          <div>({totalPosts})</div>
+        </div>
         <PostingButton text="+ 글쓰기" />
       </div>
       {/* <section>인기글</section> */}
-      <section>전체글({totalPosts})</section>
       <div className={styles.postSection}>
         <div className={styles.postHeaders}>
           <div>제목</div>
