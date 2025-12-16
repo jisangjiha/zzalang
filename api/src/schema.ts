@@ -1,37 +1,45 @@
-import { sql } from 'drizzle-orm';
+import { sql } from "drizzle-orm";
 import {
   blob,
   index,
   integer,
   sqliteTable,
   text,
-} from 'drizzle-orm/sqlite-core';
+} from "drizzle-orm/sqlite-core";
 
 const id = integer().primaryKey({ autoIncrement: true });
 
 const createdAt = integer({
-  mode: 'timestamp',
+  mode: "timestamp",
 })
   .notNull()
   .default(sql`(unixepoch())`);
 
 const updatedAt = integer({
-  mode: 'timestamp',
+  mode: "timestamp",
 })
   .$onUpdateFn(() => new Date())
   .notNull();
 
-export const users = sqliteTable('users', {
+export const users = sqliteTable("users", {
   id: id.notNull(),
   createdAt,
   updatedAt,
   name: text().notNull(),
   handle: text().notNull().unique(),
-  passwordHash: blob({ mode: 'buffer' }).notNull(),
+  passwordHash: blob({ mode: "buffer" }).notNull(),
+});
+
+export const categories = sqliteTable("categories", {
+  id: id.notNull(),
+  createdAt,
+  updatedAt,
+  title: text().notNull(),
+  description: text().notNull(),
 });
 
 export const posts = sqliteTable(
-  'posts',
+  "posts",
   {
     id: id.notNull(),
     createdAt,
@@ -41,14 +49,18 @@ export const posts = sqliteTable(
     authorId: integer()
       .references(() => users.id)
       .notNull(),
+    categoryId: integer()
+      .references(() => categories.id)
+      .notNull(),
   },
   (table) => ({
-    createdAtIndex: index('created_at_index').on(table.createdAt),
-    authorIndex: index('author_index').on(table.authorId),
+    createdAtIndex: index("created_at_index").on(table.createdAt),
+    authorIndex: index("author_index").on(table.authorId),
+    categoryIndex: index("category_index").on(table.categoryId),
   }),
 );
 
-export const comments = sqliteTable('comments', {
+export const comments = sqliteTable("comments", {
   id: id.notNull(),
   createdAt,
   updatedAt,

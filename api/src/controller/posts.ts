@@ -1,16 +1,17 @@
-import { and, asc, desc, eq, gt, sql } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/d1';
+import { and, asc, desc, eq, gt, sql } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/d1";
 
-import type { Post } from '~/models/posts';
-import { decodePostId, PostSchema } from '~/models/posts';
-import { posts } from '~/schema';
-import type { HonoContext } from '~/types';
-import { Order } from '~/utils/order';
-import type { Result } from '~/utils/result';
-import { ResponseError } from '~/utils/result';
-import { postsFts } from '~/virtual-schemas';
+import { decodeCategoryId } from "~/models/categories";
+import type { Post } from "~/models/posts";
+import { decodePostId, PostSchema } from "~/models/posts";
+import { posts } from "~/schema";
+import type { HonoContext } from "~/types";
+import { Order } from "~/utils/order";
+import type { Result } from "~/utils/result";
+import { ResponseError } from "~/utils/result";
+import { postsFts } from "~/virtual-schemas";
 
-import { verify } from './users';
+import { verify } from "./users";
 
 export async function listPosts(
   c: HonoContext,
@@ -18,10 +19,12 @@ export async function listPosts(
     page,
     pageSize,
     order,
+    categoryId,
   }: {
     page: number;
     pageSize: number;
     order: Order;
+    categoryId?: string;
   },
 ): Promise<
   Result<
@@ -32,14 +35,23 @@ export async function listPosts(
   const db = drizzle(c.env.DB);
   const orderDirection = order === Order.Asc ? asc : desc;
 
+  let whereCondition;
+  if (categoryId !== undefined) {
+    const categoryIdResult = decodeCategoryId(categoryId);
+    if (categoryIdResult.success) {
+      whereCondition = eq(posts.categoryId, categoryIdResult.data);
+    }
+  }
+
   const [rows, total] = await Promise.all([
     db
       .select()
       .from(posts)
+      .where(whereCondition)
       .orderBy(orderDirection(posts.createdAt))
       .limit(pageSize)
       .offset((page - 1) * pageSize),
-    db.$count(posts),
+    whereCondition ? db.$count(posts, whereCondition) : db.$count(posts),
   ]);
 
   const { success, data } = PostSchema.array().safeParse(rows);
@@ -48,7 +60,7 @@ export async function listPosts(
     return {
       success: false,
       error: ResponseError.InternalServerError,
-      message: 'Failed to parse posts',
+      message: "Failed to parse posts",
     };
   }
 
@@ -78,7 +90,7 @@ export async function getPost(
     return {
       success: false,
       error: ResponseError.NotFound,
-      message: 'Post not found',
+      message: "Post not found",
     };
   }
 
@@ -90,7 +102,7 @@ export async function getPost(
     return {
       success: false,
       error: ResponseError.NotFound,
-      message: 'Post not found',
+      message: "Post not found",
     };
   }
 
@@ -100,7 +112,7 @@ export async function getPost(
     return {
       success: false,
       error: ResponseError.InternalServerError,
-      message: 'Failed to parse post',
+      message: "Failed to parse post",
     };
   }
 
@@ -115,9 +127,11 @@ export async function createPost(
   {
     title,
     content,
+    categoryId,
   }: {
     title: string;
     content: string;
+    categoryId: number;
   },
 ): Promise<
   Result<
@@ -142,6 +156,8 @@ export async function createPost(
       title,
       content,
       authorId: user.id,
+      categoryId,
+      updatedAt: new Date(),
     })
     .returning();
 
@@ -151,7 +167,7 @@ export async function createPost(
     return {
       success: false,
       error: ResponseError.InternalServerError,
-      message: 'Failed to parse post',
+      message: "Failed to parse post",
     };
   }
 
@@ -167,10 +183,12 @@ export async function updatePost(
     id,
     title,
     content,
+    categoryId,
   }: {
     id: string;
-    title: string;
-    content: string;
+    title?: string;
+    content?: string;
+    categoryId?: number;
   },
 ): Promise<
   Result<
@@ -197,7 +215,7 @@ export async function updatePost(
     return {
       success: false,
       error: ResponseError.NotFound,
-      message: 'Post not found',
+      message: "Post not found",
     };
   }
 
@@ -210,7 +228,7 @@ export async function updatePost(
     return {
       success: false,
       error: ResponseError.NotFound,
-      message: 'Post not found',
+      message: "Post not found",
     };
   }
 
@@ -218,16 +236,34 @@ export async function updatePost(
     return {
       success: false,
       error: ResponseError.Forbidden,
-      message: 'Forbidden',
+      message: "Forbidden",
     };
+  }
+
+  const updates: {
+    title?: string;
+    content?: string;
+    categoryId?: number;
+    updatedAt: Date;
+  } = {
+    updatedAt: new Date(),
+  };
+
+  if (title !== undefined) {
+    updates.title = title;
+  }
+
+  if (content !== undefined) {
+    updates.content = content;
+  }
+
+  if (categoryId !== undefined) {
+    updates.categoryId = categoryId;
   }
 
   const [updatedPost] = await db
     .update(posts)
-    .set({
-      title,
-      content,
-    })
+    .set(updates)
     .where(eq(posts.id, postId))
     .returning();
 
@@ -237,7 +273,7 @@ export async function updatePost(
     return {
       success: false,
       error: ResponseError.InternalServerError,
-      message: 'Failed to parse post',
+      message: "Failed to parse post",
     };
   }
 
@@ -275,7 +311,7 @@ export async function deletePost(
     return {
       success: false,
       error: ResponseError.NotFound,
-      message: 'Post not found',
+      message: "Post not found",
     };
   }
 
@@ -288,7 +324,7 @@ export async function deletePost(
     return {
       success: false,
       error: ResponseError.NotFound,
-      message: 'Post not found',
+      message: "Post not found",
     };
   }
 
@@ -296,7 +332,7 @@ export async function deletePost(
     return {
       success: false,
       error: ResponseError.Forbidden,
-      message: 'Forbidden',
+      message: "Forbidden",
     };
   }
 
@@ -336,7 +372,7 @@ export async function searchPosts(
   const searchQuery = sql`posts_content_fts MATCH ${`"${query}"`}`;
   const orderDirection = order === Order.Asc ? asc : desc;
 
-  const postsSearchSubQuery = db.$with('posts_search').as(
+  const postsSearchSubQuery = db.$with("posts_search").as(
     db
       .select({
         rowid: postsFts.rowid,

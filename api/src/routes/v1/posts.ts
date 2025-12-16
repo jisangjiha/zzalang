@@ -1,6 +1,6 @@
-import type { OpenAPIHono } from '@hono/zod-openapi';
-import { createRoute } from '@hono/zod-openapi';
-import z from 'zod';
+import type { OpenAPIHono } from "@hono/zod-openapi";
+import { createRoute } from "@hono/zod-openapi";
+import z from "zod";
 
 import {
   createPost,
@@ -9,60 +9,66 @@ import {
   listPosts,
   searchPosts,
   updatePost,
-} from '~/controller/posts';
+} from "~/controller/posts";
 import {
   decodePostsCursor,
   encodePost,
   encodePostsCursor,
   PostResponseSchema,
-} from '~/models/posts';
-import type { HonoEnv } from '~/types';
-import { Order } from '~/utils/order';
-import { ResponseError } from '~/utils/result';
+} from "~/models/posts";
+import type { HonoEnv } from "~/types";
+import { Order } from "~/utils/order";
+import { ResponseError } from "~/utils/result";
 
 export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
   app.openapi(
     createRoute({
-      method: 'get',
-      path: '/posts',
-      summary: 'List posts',
-      description: 'List all posts',
-      tags: ['posts'],
+      method: "get",
+      path: "/posts",
+      summary: "List posts",
+      description: "List all posts",
+      tags: ["posts"],
       request: {
         query: z.object({
           page: z.coerce.number().default(1),
           pageSize: z.coerce.number().default(10),
           order: z.nativeEnum(Order).default(Order.Desc),
+          categoryId: z.string().optional(),
         }),
       },
       responses: {
         200: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 posts: z.array(PostResponseSchema),
                 total: z.number(),
               }),
             },
           },
-          description: 'List of posts',
+          description: "List of posts",
         },
         [ResponseError.InternalServerError]: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 message: z.string().optional(),
               }),
             },
           },
-          description: 'Internal server error',
+          description: "Internal server error",
         },
       },
     }),
     async (c) => {
-      const { page, pageSize, order } = c.req.valid('query');
+      const { page, pageSize, order, categoryId } = c.req.valid("query");
 
-      const postsResult = await listPosts(c, { page, pageSize, order });
+      const postsResult = await listPosts(c, {
+        page,
+        pageSize,
+        order,
+        categoryId,
+      });
 
       if (!postsResult.success) {
         return c.json(
@@ -86,7 +92,7 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
         console.error(error);
         return c.json(
           {
-            message: 'Failed to parse posts',
+            message: "Failed to parse posts",
           },
           ResponseError.InternalServerError,
         );
@@ -96,17 +102,17 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
 
   app.openapi(
     createRoute({
-      method: 'get',
-      path: '/posts/{id}',
-      summary: 'Get post',
-      description: 'Get a post by ID',
-      tags: ['posts'],
+      method: "get",
+      path: "/posts/{id}",
+      summary: "Get post",
+      description: "Get a post by ID",
+      tags: ["posts"],
       request: {
         params: z.object({
           id: z.string().openapi({
             param: {
-              name: 'id',
-              in: 'path',
+              name: "id",
+              in: "path",
             },
           }),
         }),
@@ -114,36 +120,36 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
       responses: {
         200: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: PostResponseSchema,
             },
           },
-          description: 'Post found',
+          description: "Post found",
         },
         [ResponseError.NotFound]: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 message: z.string().optional(),
               }),
             },
           },
-          description: 'Post not found',
+          description: "Post not found",
         },
         [ResponseError.InternalServerError]: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 message: z.string().optional(),
               }),
             },
           },
-          description: 'Internal server error',
+          description: "Internal server error",
         },
       },
     }),
     async (c) => {
-      const { id } = c.req.valid('param');
+      const { id } = c.req.valid("param");
 
       const postResult = await getPost(c, id);
 
@@ -162,18 +168,19 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
 
   app.openapi(
     createRoute({
-      method: 'post',
-      path: '/posts',
-      summary: 'Create post',
-      description: 'Create a new post',
-      tags: ['posts'],
+      method: "post",
+      path: "/posts",
+      summary: "Create post",
+      description: "Create a new post",
+      tags: ["posts"],
       request: {
         body: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 title: z.string(),
                 content: z.string(),
+                categoryId: z.number(),
               }),
             },
           },
@@ -182,41 +189,41 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
       responses: {
         200: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: PostResponseSchema,
             },
           },
-          description: 'Post created',
+          description: "Post created",
         },
         [ResponseError.BadRequest]: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 message: z.string().optional(),
               }),
             },
           },
-          description: 'Bad request',
+          description: "Bad request",
         },
         [ResponseError.Unauthorized]: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 message: z.string().optional(),
               }),
             },
           },
-          description: 'Unauthorized',
+          description: "Unauthorized",
         },
         [ResponseError.InternalServerError]: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 message: z.string().optional(),
               }),
             },
           },
-          description: 'Internal server error',
+          description: "Internal server error",
         },
       },
       security: [
@@ -226,9 +233,9 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
       ],
     }),
     async (c) => {
-      const { title, content } = c.req.valid('json');
+      const { title, content, categoryId } = c.req.valid("json");
 
-      const postResult = await createPost(c, { title, content });
+      const postResult = await createPost(c, { title, content, categoryId });
 
       if (!postResult.success) {
         return c.json(
@@ -245,26 +252,27 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
 
   app.openapi(
     createRoute({
-      method: 'put',
-      path: '/posts/{id}',
-      summary: 'Update post',
-      description: 'Update a post by ID',
-      tags: ['posts'],
+      method: "put",
+      path: "/posts/{id}",
+      summary: "Update post",
+      description: "Update a post by ID",
+      tags: ["posts"],
       request: {
         params: z.object({
           id: z.string().openapi({
             param: {
-              name: 'id',
-              in: 'path',
+              name: "id",
+              in: "path",
             },
           }),
         }),
         body: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
-                title: z.string(),
-                content: z.string(),
+                title: z.string().optional(),
+                content: z.string().optional(),
+                categoryId: z.number().optional(),
               }),
             },
           },
@@ -273,61 +281,61 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
       responses: {
         200: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: PostResponseSchema,
             },
           },
-          description: 'Post updated',
+          description: "Post updated",
         },
         [ResponseError.NotFound]: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 message: z.string().optional(),
               }),
             },
           },
-          description: 'Post not found',
+          description: "Post not found",
         },
         [ResponseError.BadRequest]: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 message: z.string().optional(),
               }),
             },
           },
-          description: 'Bad request',
+          description: "Bad request",
         },
         [ResponseError.Unauthorized]: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 message: z.string().optional(),
               }),
             },
           },
-          description: 'Unauthorized',
+          description: "Unauthorized",
         },
         [ResponseError.Forbidden]: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 message: z.string().optional(),
               }),
             },
           },
-          description: 'Forbidden',
+          description: "Forbidden",
         },
         [ResponseError.InternalServerError]: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 message: z.string().optional(),
               }),
             },
           },
-          description: 'Internal server error',
+          description: "Internal server error",
         },
       },
       security: [
@@ -337,10 +345,15 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
       ],
     }),
     async (c) => {
-      const { id } = c.req.valid('param');
-      const { title, content } = c.req.valid('json');
+      const { id } = c.req.valid("param");
+      const { title, content, categoryId } = c.req.valid("json");
 
-      const postResult = await updatePost(c, { id, title, content });
+      const postResult = await updatePost(c, {
+        id,
+        title,
+        content,
+        categoryId,
+      });
 
       if (!postResult.success) {
         return c.json(
@@ -357,74 +370,74 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
 
   app.openapi(
     createRoute({
-      method: 'delete',
-      path: '/posts/{id}',
-      summary: 'Delete post',
-      description: 'Delete a post by ID',
-      tags: ['posts'],
+      method: "delete",
+      path: "/posts/{id}",
+      summary: "Delete post",
+      description: "Delete a post by ID",
+      tags: ["posts"],
       request: {
         params: z.object({
           id: z.string().openapi({
             param: {
-              name: 'id',
-              in: 'path',
+              name: "id",
+              in: "path",
             },
           }),
         }),
       },
       responses: {
         200: {
-          description: 'Post deleted',
+          description: "Post deleted",
         },
         [ResponseError.NotFound]: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 message: z.string().optional(),
               }),
             },
           },
-          description: 'Post not found',
+          description: "Post not found",
         },
         [ResponseError.BadRequest]: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 message: z.string().optional(),
               }),
             },
           },
-          description: 'Bad request',
+          description: "Bad request",
         },
         [ResponseError.Unauthorized]: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 message: z.string().optional(),
               }),
             },
           },
-          description: 'Unauthorized',
+          description: "Unauthorized",
         },
         [ResponseError.Forbidden]: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 message: z.string().optional(),
               }),
             },
           },
-          description: 'Forbidden',
+          description: "Forbidden",
         },
         [ResponseError.InternalServerError]: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 message: z.string().optional(),
               }),
             },
           },
-          description: 'Internal server error',
+          description: "Internal server error",
         },
       },
       security: [
@@ -434,7 +447,7 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
       ],
     }),
     async (c) => {
-      const { id } = c.req.valid('param');
+      const { id } = c.req.valid("param");
 
       const postResult = await deletePost(c, id);
 
@@ -453,11 +466,11 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
 
   app.openapi(
     createRoute({
-      method: 'get',
-      path: '/search/posts',
-      summary: 'Search posts',
-      description: 'Search posts by title or content',
-      tags: ['posts'],
+      method: "get",
+      path: "/search/posts",
+      summary: "Search posts",
+      description: "Search posts by title or content",
+      tags: ["posts"],
       request: {
         query: z.object({
           query: z.string(),
@@ -469,39 +482,39 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
       responses: {
         200: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 posts: z.array(PostResponseSchema),
                 cursor: z.string().optional(),
               }),
             },
           },
-          description: 'List of posts',
+          description: "List of posts",
         },
         [ResponseError.BadRequest]: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 message: z.string().optional(),
               }),
             },
           },
-          description: 'Bad request',
+          description: "Bad request",
         },
         [ResponseError.InternalServerError]: {
           content: {
-            'application/json': {
+            "application/json": {
               schema: z.object({
                 message: z.string().optional(),
               }),
             },
           },
-          description: 'Internal server error',
+          description: "Internal server error",
         },
       },
     }),
     async (c) => {
-      const { query, pageSize, cursor: cursorId, order } = c.req.valid('query');
+      const { query, pageSize, cursor: cursorId, order } = c.req.valid("query");
 
       const cursor =
         cursorId === undefined
@@ -514,7 +527,7 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
       if (!cursor.success) {
         return c.json(
           {
-            message: 'Invalid cursor',
+            message: "Invalid cursor",
           },
           ResponseError.BadRequest,
         );
@@ -553,7 +566,7 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
         console.error(error);
         return c.json(
           {
-            message: 'Failed to parse posts',
+            message: "Failed to parse posts",
           },
           ResponseError.InternalServerError,
         );
