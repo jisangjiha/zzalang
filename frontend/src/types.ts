@@ -6,3 +6,11 @@ export interface Post {
   content: string;
   authorId: string;
 }
+
+export interface User {
+  id: string;
+  name: string;
+  handle: string;
+  createdAt: string;
+  updatedAt: string;
+}

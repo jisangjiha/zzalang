@@ -1,15 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Post } from "../../types";
+import { Post, User } from "../../types";
 import styles from "../page.module.css";
-
-interface User {
-  id: string;
-  name: string;
-  handle: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export default function PostsPage() {
   const { id } = useParams<{ id: string }>();

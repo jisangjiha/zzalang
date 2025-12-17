@@ -2,21 +2,13 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PostingButton from "../components/PostingButton";
 import PageButton from "../components/PageButton";
-import { Post } from "../types";
+import { Post, User } from "../types";
 
 import styles from "./page.module.css";
 
 interface PostsResponse {
   posts: Post[];
   total: number;
-}
-
-interface User {
-  id: string;
-  name: string;
-  handle: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export default function MainPage() {
