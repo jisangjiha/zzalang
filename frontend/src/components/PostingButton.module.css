@@ -11,5 +11,6 @@
 
   &:hover {
     background-color: var(--black);
+    cursor: pointer;
   }
 }
