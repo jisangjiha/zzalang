@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { Post, User } from "../../types";
 import styles from "../page.module.css";
 
-export default function PostsPage() {
+export default function PostsIdPage() {
   const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<Post | null>(null);
   const [authorHandle, setAuthorHandle] = useState<string>("");
