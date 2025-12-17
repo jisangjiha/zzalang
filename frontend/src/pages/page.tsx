@@ -1,17 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PostingButton from "../components/PostingButton";
+import PageButton from "../components/PageButton";
+import { Post } from "../types";
 
 import styles from "./page.module.css";
-import PageButton from "../components/PageButton";
-
-interface Post {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  title: string;
-  content: string;
-  authorId: string;
-}
 
 interface PostsResponse {
   posts: Post[];
@@ -30,6 +23,7 @@ export default function MainPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [userHandles, setUserHandles] = useState<Record<string, string>>({});
+  const navigate = useNavigate();
 
   const devApi = import.meta.env.VITE_API_BASE_URL;
 
@@ -131,7 +125,11 @@ export default function MainPage() {
         ) : (
           <>
             {posts.map((post) => (
-              <div key={post.id} className={styles.post}>
+              <div
+                key={post.id}
+                className={styles.post}
+                onClick={() => navigate(`/posts/${post.id}`)}
+              >
                 <div>{post.title}</div>
                 <div>{post.content}</div>
                 <div>{new Date(post.createdAt).toLocaleDateString()}</div>
