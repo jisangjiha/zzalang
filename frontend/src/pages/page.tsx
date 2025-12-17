@@ -26,6 +26,9 @@ export default function MainPage() {
   const [order] = useState<"ASC" | "DESC">("DESC");
   const totalPage = Math.max(1, Math.ceil(totalPosts / pageSize));
 
+  // HTML 태그 제거 함수
+  const stripHtml = (html: string) => html.replace(/<[^>]*>/g, "");
+
   // 페이지 번호 계산 (현재 페이지 중심으로 최대 5개 노출)
   const pageNumbers = (() => {
     const windowSize = 5;
@@ -123,7 +126,7 @@ export default function MainPage() {
                 onClick={() => navigate(`/posts/${post.id}`)}
               >
                 <div>{post.title}</div>
-                <div>{post.content}</div>
+                <div>{stripHtml(post.content)}</div>
                 <div>{new Date(post.createdAt).toLocaleDateString()}</div>
                 <div>{userHandles[post.authorId] || "Loading..."}</div>
               </div>

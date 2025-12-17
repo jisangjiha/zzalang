@@ -71,6 +71,12 @@
   background-color: var(--bg-light-gray);
 }
 
+.post > div {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .loading {
   padding: 20px 0;
 }
