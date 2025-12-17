@@ -35,6 +35,13 @@
   align-items: center;
 }
 
+.boardHeaderName {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
 .postSection {
   /* 로딩중인 경우 페이지네이션 위치 고정을 위함 */
   min-height: 400px;
@@ -55,8 +62,13 @@
 }
 
 .post {
-  padding: 10px 0;
+  padding: 10px 4px;
   border-bottom: 1px solid var(--border-light-gray);
+}
+
+.post:hover {
+  cursor: pointer;
+  background-color: var(--bg-light-gray);
 }
 
 .loading {

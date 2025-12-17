@@ -29,7 +29,7 @@ export default function PostingButton({
       isNotLogin();
       return;
     }
-    navigate("/posting");
+    navigate("/posts");
   };
 
   const handleClick = useAuthGuard && !onClick ? defaultClick : onClick;

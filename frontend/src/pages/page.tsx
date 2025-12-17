@@ -1,35 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PostingButton from "../components/PostingButton";
+import PageButton from "../components/PageButton";
+import { Post, User } from "../types";
 
 import styles from "./page.module.css";
-import PageButton from "../components/PageButton";
-
-interface Post {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  title: string;
-  content: string;
-  authorId: string;
-}
 
 interface PostsResponse {
   posts: Post[];
   total: number;
 }
 
-interface User {
-  id: string;
-  name: string;
-  handle: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export default function MainPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [userHandles, setUserHandles] = useState<Record<string, string>>({});
+  const navigate = useNavigate();
 
   const devApi = import.meta.env.VITE_API_BASE_URL;
 
@@ -112,11 +98,13 @@ export default function MainPage() {
   return (
     <main className={styles.mainContainer}>
       <div className={styles.boardHeader}>
-        <h1>게시판</h1>
+        <div className={styles.boardHeaderName}>
+          <h1>게시판</h1>
+          <div>({totalPosts})</div>
+        </div>
         <PostingButton text="+ 글쓰기" />
       </div>
       {/* <section>인기글</section> */}
-      <section>전체글({totalPosts})</section>
       <div className={styles.postSection}>
         <div className={styles.postHeaders}>
           <div>제목</div>
@@ -129,7 +117,11 @@ export default function MainPage() {
         ) : (
           <>
             {posts.map((post) => (
-              <div key={post.id} className={styles.post}>
+              <div
+                key={post.id}
+                className={styles.post}
+                onClick={() => navigate(`/posts/${post.id}`)}
+              >
                 <div>{post.title}</div>
                 <div>{post.content}</div>
                 <div>{new Date(post.createdAt).toLocaleDateString()}</div>
