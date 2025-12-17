@@ -66,11 +66,12 @@ export default function PostsIdPage() {
 
   return (
     <div className={styles.mainContainer}>
-      <div className={styles.postsIdContainer}>
+      <div className={styles.postedContainer}>
         <h2>{post.title}</h2>
-        <div>
-          <span>{authorHandle}</span>
-          <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+        <div className={styles.postedInfo}>
+          <span>작성자: {authorHandle}</span>
+          <span>|</span>
+          <span>작성일: {new Date(post.createdAt).toLocaleDateString()}</span>
         </div>
         <div dangerouslySetInnerHTML={{ __html: post.content }} />
       </div>

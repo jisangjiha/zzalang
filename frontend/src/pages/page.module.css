@@ -71,6 +71,12 @@
   background-color: var(--bg-light-gray);
 }
 
+.post > div {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .loading {
   padding: 20px 0;
 }
@@ -152,4 +158,21 @@
   align-items: center;
 
   gap: 4px;
+}
+
+/*Posted*/
+.postedContainer {
+  height: 80%;
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+}
+
+.postedInfo {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 10px;
+
+  color: var(--font-gray);
 }
