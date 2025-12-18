@@ -10,7 +10,7 @@ import PostingButton from "../../components/PostingButton";
 import styles from "../page.module.css";
 import "react-quill/dist/quill.snow.css";
 
-export default function Posts() {
+export default function PostingPage() {
   const navigate = useNavigate();
   const { token } = useContext(AuthContext);
 

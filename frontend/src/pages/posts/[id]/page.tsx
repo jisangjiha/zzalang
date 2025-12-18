@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Post, User } from "../../types";
-import styles from "../page.module.css";
+import { useNavigate, useParams } from "react-router-dom";
+import { Post, User } from "../../../types";
+import styles from "../../page.module.css";
 
-export default function PostsIdPage() {
+export default function PostedPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [post, setPost] = useState<Post | null>(null);
   const [authorHandle, setAuthorHandle] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
@@ -64,6 +65,11 @@ export default function PostsIdPage() {
     );
   }
 
+  const handleModify = () => {
+    if (!id) return;
+    navigate(`/posts/${id}/edit`);
+  };
+
   return (
     <div className={styles.mainContainer}>
       <div className={styles.postedContainer}>
@@ -74,6 +80,8 @@ export default function PostsIdPage() {
           <span>작성일: {new Date(post.createdAt).toLocaleDateString()}</span>
         </div>
         <div dangerouslySetInnerHTML={{ __html: post.content }} />
+        <button onClick={handleModify}>수정</button>
+        <button>삭제</button>
       </div>
     </div>
   );
