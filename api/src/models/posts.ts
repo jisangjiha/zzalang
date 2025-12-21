@@ -1,9 +1,10 @@
-import z from 'zod';
+import z from "zod";
 
-import { decodeId, encodeId } from '~/utils/id';
-import type { Result } from '~/utils/result';
+import { decodeId, encodeId } from "~/utils/id";
+import type { Result } from "~/utils/result";
 
-import { encodeUserId } from './users';
+import { encodeCategoryId } from "./categories";
+import { encodeUserId } from "./users";
 
 const POSTS_KEY = 2;
 const POSTS_CURSOR_KEY = 3;
@@ -15,6 +16,7 @@ export const PostSchema = z.object({
   title: z.string(),
   content: z.string(),
   authorId: z.number(),
+  categoryId: z.number(),
 });
 
 export type Post = z.infer<typeof PostSchema>;
@@ -27,8 +29,9 @@ export const PostResponseSchema = z
     title: z.string(),
     content: z.string(),
     authorId: z.string(),
+    categoryId: z.string(),
   })
-  .openapi('Post');
+  .openapi("Post");
 
 export function encodePostId(id: number) {
   return encodeId(POSTS_KEY, id);
@@ -49,6 +52,7 @@ export const encodePost = z
     title: post.title,
     content: post.content,
     authorId: encodeUserId(post.authorId),
+    categoryId: encodeCategoryId(post.categoryId),
   }));
 
 export function encodePostsCursor(id: number) {
