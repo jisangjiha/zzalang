@@ -1,20 +1,69 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+
 import { Post, User } from "../../../types";
-import styles from "../../page.module.css";
 import { AuthContext } from "../../../contexts/auth-context";
+import styles from "../../page.module.css";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const handleApiError = async (
+  response: Response,
+  defaultMessage: string
+): Promise<string> => {
+  try {
+    const errorData = await response.json();
+    return errorData.message || defaultMessage;
+  } catch {
+    return defaultMessage;
+  }
+};
 
 export default function PostedPage() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { token } = useContext(AuthContext);
+
   const [post, setPost] = useState<Post | null>(null);
   const [authorHandle, setAuthorHandle] = useState<string>("");
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  // 로그인 회원과 게시글 작성자가 같은지 확인
+  const isOwner = useMemo(
+    () => !!currentUser && !!post && post.authorId === currentUser.id,
+    [currentUser, post]
+  );
+
+  useEffect(() => {
+    if (!token) {
+      setCurrentUser(null);
+      return;
+    }
+
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/v1/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const user: User = await response.json();
+          setCurrentUser(user);
+        } else {
+          setCurrentUser(null);
+        }
+      } catch {
+        setCurrentUser(null);
+      }
+    };
+
+    fetchCurrentUser();
+  }, [token]);
 
   useEffect(() => {
     if (!id) {
@@ -26,49 +75,46 @@ export default function PostedPage() {
     const fetchPost = async () => {
       setIsLoading(true);
       setError(null);
+
       try {
         const response = await fetch(`${API_BASE_URL}/v1/posts/${id}`);
+
         if (!response.ok) {
-          throw new Error(`status ${response.status}`);
+          const message = await handleApiError(
+            response,
+            "게시글을 불러오지 못했습니다."
+          );
+          setError(message);
+          return;
         }
 
         const data: Post = await response.json();
         setPost(data);
 
-        // authorId를 이용해서 작성자 handle 가져오기
+        // 작성자 handle 가져오기
         try {
-          const userRes = await fetch(
+          const userResponse = await fetch(
             `${API_BASE_URL}/v1/users/${data.authorId}`
           );
-          if (userRes.ok) {
-            const user: User = await userRes.json();
+
+          if (userResponse.ok) {
+            const user: User = await userResponse.json();
             setAuthorHandle(user.handle);
+          } else {
+            setAuthorHandle("알 수 없음");
           }
         } catch {
           setAuthorHandle("알 수 없음");
         }
-      } catch (err) {
-        console.log("Failed to fetch post:", err);
-        setError("게시글을 불러오지 못했습니다.");
+      } catch {
+        setError("네트워크 오류가 발생했습니다.");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchPost();
-  }, [API_BASE_URL, id]);
-
-  if (isLoading) {
-    return <div className={styles.mainContainer}>Loading...</div>;
-  }
-
-  if (error || !post) {
-    return (
-      <div className={styles.mainContainer}>
-        {error || "게시글이 없습니다."}
-      </div>
-    );
-  }
+  }, [id]);
 
   const handleModify = () => {
     if (!id) return;
@@ -105,8 +151,11 @@ export default function PostedPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        setError(errorData.message || "게시글 삭제에 실패하였습니다.");
+        const message = await handleApiError(
+          response,
+          "게시글 삭제에 실패하였습니다."
+        );
+        setError(message);
         return;
       }
 
@@ -118,7 +167,18 @@ export default function PostedPage() {
     }
   };
 
-  // 수정, 삭제 버튼이 본인에게만 보이도록 해야 함
+  if (isLoading) {
+    return <div className={styles.mainContainer}>Loading...</div>;
+  }
+
+  if (error || !post) {
+    return (
+      <div className={styles.mainContainer}>
+        {error || "게시글이 없습니다."}
+      </div>
+    );
+  }
+
   return (
     <div className={styles.mainContainer}>
       <div className={styles.postedContainer}>
@@ -129,14 +189,16 @@ export default function PostedPage() {
           <span>작성일: {new Date(post.createdAt).toLocaleDateString()}</span>
         </div>
         <div dangerouslySetInnerHTML={{ __html: post.content }} />
-        <div>
-          <button onClick={handleModify} disabled={isDeleting}>
-            수정
-          </button>
-          <button onClick={handleDelete} disabled={isDeleting}>
-            {isDeleting ? "삭제 중..." : "삭제"}
-          </button>
-        </div>
+        {isOwner && (
+          <div>
+            <button onClick={handleModify} disabled={isDeleting}>
+              수정
+            </button>
+            <button onClick={handleDelete} disabled={isDeleting}>
+              {isDeleting ? "삭제 중..." : "삭제"}
+            </button>
+          </div>
+        )}
         {error && (
           <div style={{ color: "red", marginTop: "10px" }}>{error}</div>
         )}
