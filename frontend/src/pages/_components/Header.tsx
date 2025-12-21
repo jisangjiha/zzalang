@@ -21,14 +21,14 @@ export default function Header() {
   const { token, clearToken } = useContext(AuthContext);
   const [user, setUser] = useState<User | null>(null);
 
-  const devApi = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     if (!token) {
       setUser(null);
       return;
     }
-    fetch(`${devApi}/v1/me`, {
+    fetch(`${API_BASE_URL}/v1/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -38,7 +38,7 @@ export default function Header() {
   }, [token]);
 
   const handleLogout = () => {
-    fetch(`${devApi}/v1/sign-out`, {
+    fetch(`${API_BASE_URL}/v1/sign-out`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,

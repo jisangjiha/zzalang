@@ -17,7 +17,7 @@ export default function MainPage() {
   const [userHandles, setUserHandles] = useState<Record<string, string>>({});
   const navigate = useNavigate();
 
-  const devApi = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   // 페이지 관련 상태
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,7 +45,7 @@ export default function MainPage() {
   const fetchUserHandle = useCallback(
     async (userId: string): Promise<string> => {
       try {
-        const response = await fetch(`${devApi}/v1/users/${userId}`);
+        const response = await fetch(`${API_BASE_URL}/v1/users/${userId}`);
         if (response.ok) {
           const user: User = await response.json();
           return user.handle;
@@ -55,7 +55,7 @@ export default function MainPage() {
       }
       return "Unknown User";
     },
-    [devApi]
+    [API_BASE_URL]
   );
 
   // 게시글 목록을 가져오는 함수
@@ -63,7 +63,7 @@ export default function MainPage() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `${devApi}/v1/posts?page=${currentPage}&pageSize=${pageSize}&order=${order}`
+        `${API_BASE_URL}/v1/posts?page=${currentPage}&pageSize=${pageSize}&order=${order}`
       );
       if (!response.ok) {
         throw new Error(`status ${response.status}`);
@@ -92,7 +92,7 @@ export default function MainPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, devApi, fetchUserHandle, order, pageSize]);
+  }, [currentPage, API_BASE_URL, fetchUserHandle, order, pageSize]);
 
   useEffect(() => {
     fetchPosts();

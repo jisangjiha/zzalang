@@ -11,7 +11,7 @@ export default function PostedPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const devApi = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     if (!id) {
@@ -24,7 +24,7 @@ export default function PostedPage() {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${devApi}/v1/posts/${id}`);
+        const response = await fetch(`${API_BASE_URL}/v1/posts/${id}`);
         if (!response.ok) {
           throw new Error(`status ${response.status}`);
         }
@@ -34,7 +34,9 @@ export default function PostedPage() {
 
         // authorId를 이용해서 작성자 handle 가져오기
         try {
-          const userRes = await fetch(`${devApi}/v1/users/${data.authorId}`);
+          const userRes = await fetch(
+            `${API_BASE_URL}/v1/users/${data.authorId}`
+          );
           if (userRes.ok) {
             const user: User = await userRes.json();
             setAuthorHandle(user.handle);
@@ -51,7 +53,7 @@ export default function PostedPage() {
     };
 
     fetchPost();
-  }, [devApi, id]);
+  }, [API_BASE_URL, id]);
 
   if (isLoading) {
     return <div className={styles.mainContainer}>Loading...</div>;
