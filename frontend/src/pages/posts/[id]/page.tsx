@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { Post, User } from "../../../types";
 import { AuthContext } from "../../../contexts/auth-context";
+import PostActionButton from "../../../components/PostActionButton";
 import styles from "../../page.module.css";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -182,23 +183,31 @@ export default function PostedPage() {
   return (
     <div className={styles.mainContainer}>
       <div className={styles.postedContainer}>
-        <h2>{post.title}</h2>
+        <div className={styles.postedTitleButton}>
+          <h2>{post.title}</h2>
+          {isOwner && (
+            <div>
+              <PostActionButton
+                text="수정"
+                variant="modify"
+                onClick={handleModify}
+                disabled={isDeleting}
+              />
+              <PostActionButton
+                text={isDeleting ? "삭제 중..." : "삭제"}
+                variant="delete"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              />
+            </div>
+          )}
+        </div>
         <div className={styles.postedInfo}>
           <span>작성자: {authorHandle}</span>
           <span>|</span>
           <span>작성일: {new Date(post.createdAt).toLocaleDateString()}</span>
         </div>
         <div dangerouslySetInnerHTML={{ __html: post.content }} />
-        {isOwner && (
-          <div>
-            <button onClick={handleModify} disabled={isDeleting}>
-              수정
-            </button>
-            <button onClick={handleDelete} disabled={isDeleting}>
-              {isDeleting ? "삭제 중..." : "삭제"}
-            </button>
-          </div>
-        )}
         {error && (
           <div style={{ color: "red", marginTop: "10px" }}>{error}</div>
         )}
