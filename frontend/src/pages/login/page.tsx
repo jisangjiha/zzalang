@@ -20,7 +20,7 @@ export default function LoginPage() {
     undefined
   );
 
-  const devApi = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   return (
     <form
@@ -28,7 +28,7 @@ export default function LoginPage() {
       onSubmit={(e) => {
         console.log("submit");
         e.preventDefault();
-        fetch(`${devApi}/v1/sign-in`, {
+        fetch(`${API_BASE_URL}/v1/sign-in`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

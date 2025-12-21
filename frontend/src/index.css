@@ -30,5 +30,6 @@ body {
   --bg-light-gray: #f5f5f5;
   --font-gray: #979797;
   --font-dark-gray: #555555;
-  --danger: #f14c61;
+  --before-danger: #ed5166;
+  --danger: #f6465d;
 }

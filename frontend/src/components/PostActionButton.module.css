@@ -1,0 +1,43 @@
+.modifyButton {
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 8px;
+
+  background-color: var(--before-black);
+  color: var(--white);
+  transition: all 0.2s;
+
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background-color: var(--black);
+    cursor: pointer;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.deleteButton {
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 8px;
+
+  background-color: var(--before-danger);
+  color: white;
+  transition: all 0.2s;
+
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background-color: var(--danger);
+    cursor: pointer;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}

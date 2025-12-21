@@ -27,7 +27,7 @@ export default function RegisterPage() {
     undefined
   );
 
-  const devApi = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   return (
     <form
@@ -35,7 +35,7 @@ export default function RegisterPage() {
       onSubmit={(e) => {
         console.log("submit");
         e.preventDefault();
-        fetch(`${devApi}/v1/register`, {
+        fetch(`${API_BASE_URL}/v1/register`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

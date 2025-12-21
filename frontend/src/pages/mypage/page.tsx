@@ -25,10 +25,10 @@ export default function MyPage() {
     }));
   };
 
-  const devApi = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
-    fetch(`${devApi}/v1/me`, {
+    fetch(`${API_BASE_URL}/v1/me`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -44,7 +44,7 @@ export default function MyPage() {
   }, [token]);
 
   const handleModify = () => {
-    fetch(`${devApi}/v1/me`, {
+    fetch(`${API_BASE_URL}/v1/me`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
