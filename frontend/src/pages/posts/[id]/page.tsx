@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Post, User } from "../../../types";
 import styles from "../../page.module.css";
+import { AuthContext } from "../../../contexts/auth-context";
 
 export default function PostedPage() {
-  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const { token } = useContext(AuthContext);
   const [post, setPost] = useState<Post | null>(null);
   const [authorHandle, setAuthorHandle] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -72,6 +75,50 @@ export default function PostedPage() {
     navigate(`/posts/${id}/edit`);
   };
 
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    if (!id) {
+      setError("게시글 ID가 없습니다.");
+      return;
+    }
+
+    if (!window.confirm("해당 게시글을 삭제하시겠습니까?")) {
+      return;
+    }
+
+    setIsDeleting(true);
+    setError(null);
+
+    try {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/v1/posts/${id}`, {
+        method: "DELETE",
+        headers,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.message || "게시글 삭제에 실패하였습니다.");
+        return;
+      }
+
+      navigate("/");
+    } catch {
+      setError("네트워크 오류가 발생했습니다.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // 수정, 삭제 버튼이 본인에게만 보이도록 해야 함
   return (
     <div className={styles.mainContainer}>
       <div className={styles.postedContainer}>
@@ -82,8 +129,17 @@ export default function PostedPage() {
           <span>작성일: {new Date(post.createdAt).toLocaleDateString()}</span>
         </div>
         <div dangerouslySetInnerHTML={{ __html: post.content }} />
-        <button onClick={handleModify}>수정</button>
-        <button>삭제</button>
+        <div>
+          <button onClick={handleModify} disabled={isDeleting}>
+            수정
+          </button>
+          <button onClick={handleDelete} disabled={isDeleting}>
+            {isDeleting ? "삭제 중..." : "삭제"}
+          </button>
+        </div>
+        {error && (
+          <div style={{ color: "red", marginTop: "10px" }}>{error}</div>
+        )}
       </div>
     </div>
   );
