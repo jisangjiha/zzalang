@@ -25,6 +25,7 @@ const router = createBrowserRouter(
       <Route path="login" element={<LoginPage />} />
       <Route path="posts" element={<PostingPage />} />
       <Route path="posts/:id" element={<PostedPage />} />
+      <Route path="posts/:id/edit" element={<PostingPage />} />
       <Route path="mypage" element={<MyPage />} />
       <Route path="category-daily" element={<MainPage />} />
       <Route path="category-qna" element={<MainPage />} />

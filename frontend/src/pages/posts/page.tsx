@@ -1,9 +1,10 @@
-import { useState, useContext, ChangeEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useContext, ChangeEvent, useEffect } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ReactQuill from "react-quill";
 
 import type { ComponentType } from "react";
 import { AuthContext } from "../../contexts/auth-context";
+import { Post } from "../../types";
 
 import PostingButton from "../../components/PostingButton";
 
@@ -36,8 +37,44 @@ export default function PostingPage() {
     undefined
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingPost, setIsLoadingPost] = useState(false);
+
+  // 포스트를 수정할 때의 PostingPage를 구분하기 위한 상태들
+  const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const isEdit = !!id && location.pathname.includes("/edit");
 
   const devApi = import.meta.env.VITE_API_BASE_URL;
+
+  // edit 모드일 때 기존 게시글 데이터 불러오기
+  useEffect(() => {
+    if (!isEdit || !id) return;
+
+    const fetchPost = async () => {
+      setIsLoadingPost(true);
+      setErrorMessage(undefined);
+      try {
+        const response = await fetch(`${devApi}/v1/posts/${id}`);
+        if (!response.ok) {
+          const errorData = await response.json();
+          setErrorMessage(errorData.message || "게시글을 불러오지 못했습니다.");
+          return;
+        }
+
+        const data: Post = await response.json();
+        setPostingData({
+          title: data.title,
+          content: data.content,
+        });
+      } catch {
+        setErrorMessage("네트워크 오류가 발생했습니다.");
+      } finally {
+        setIsLoadingPost(false);
+      }
+    };
+
+    fetchPost();
+  }, [isEdit, id, devApi]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,14 +97,27 @@ export default function PostingPage() {
         headers["Authorization"] = `Bearer ${token}`;
       }
 
-      const response = await fetch(`${devApi}/v1/posts`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          title: postingData.title.trim(),
-          content: postingData.content.trim(),
-        }),
-      });
+      let response;
+
+      if (isEdit) {
+        response = await fetch(`${devApi}/v1/posts/${id}`, {
+          method: "PUT",
+          headers,
+          body: JSON.stringify({
+            title: postingData.title.trim(),
+            content: postingData.content.trim(),
+          }),
+        });
+      } else {
+        response = await fetch(`${devApi}/v1/posts`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            title: postingData.title.trim(),
+            content: postingData.content.trim(),
+          }),
+        });
+      }
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -82,6 +132,10 @@ export default function PostingPage() {
       setIsLoading(false);
     }
   };
+
+  if (isLoadingPost) {
+    return <div className={styles.mainContainer}>게시글을 불러오는 중...</div>;
+  }
 
   return (
     <form className={styles.mainContainer} onSubmit={handleSubmit}>
@@ -107,6 +161,7 @@ export default function PostingPage() {
           onChange={(e) =>
             setPostingData({ ...postingData, title: e.target.value })
           }
+          disabled={isLoadingPost}
         />
         <QuillEditor
           className={styles.postingEditor}
@@ -124,7 +179,15 @@ export default function PostingPage() {
           type="submit"
           useAuthGuard={false}
           disabled={isLoading}
-          text={isLoading ? "등록 중..." : "등록하기"}
+          text={
+            isEdit
+              ? isLoading
+                ? "수정 중..."
+                : "수정하기"
+              : isLoading
+              ? "등록 중..."
+              : "등록하기"
+          }
         />
       </div>
     </form>
