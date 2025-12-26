@@ -131,7 +131,7 @@ export async function createPost(
   }: {
     title: string;
     content: string;
-    categoryId: number;
+    categoryId: string;
   },
 ): Promise<
   Result<
@@ -147,6 +147,16 @@ export async function createPost(
     return userResult;
   }
 
+  const categoryIdResult = decodeCategoryId(categoryId);
+
+  if (!categoryIdResult.success) {
+    return {
+      success: false,
+      error: ResponseError.BadRequest,
+      message: "Invalid category ID",
+    };
+  }
+
   const db = drizzle(c.env.DB);
   const user = userResult.data;
 
@@ -156,7 +166,7 @@ export async function createPost(
       title,
       content,
       authorId: user.id,
-      categoryId,
+      categoryId: categoryIdResult.data,
       updatedAt: new Date(),
     })
     .returning();
@@ -188,7 +198,7 @@ export async function updatePost(
     id: string;
     title?: string;
     content?: string;
-    categoryId?: number;
+    categoryId?: string;
   },
 ): Promise<
   Result<
@@ -258,7 +268,17 @@ export async function updatePost(
   }
 
   if (categoryId !== undefined) {
-    updates.categoryId = categoryId;
+    const categoryIdResult = decodeCategoryId(categoryId);
+
+    if (!categoryIdResult.success) {
+      return {
+        success: false,
+        error: ResponseError.BadRequest,
+        message: "Invalid category ID",
+      };
+    }
+
+    updates.categoryId = categoryIdResult.data;
   }
 
   const [updatedPost] = await db
