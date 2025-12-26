@@ -180,7 +180,7 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
               schema: z.object({
                 title: z.string(),
                 content: z.string(),
-                categoryId: z.number(),
+                categoryId: z.string(),
               }),
             },
           },
@@ -272,7 +272,7 @@ export default function handlePosts(app: OpenAPIHono<HonoEnv>) {
               schema: z.object({
                 title: z.string().optional(),
                 content: z.string().optional(),
-                categoryId: z.number().optional(),
+                categoryId: z.string().optional(),
               }),
             },
           },
