@@ -13,6 +13,7 @@ import MainPage from "./pages/page.tsx";
 import PostingPage from "./pages/posts/page.tsx";
 import PostedPage from "./pages/posts/[id]/page.tsx";
 import MyPage from "./pages/mypage/page.tsx";
+// import InitCategoriesPage from "./pages/admin/init-categories.tsx";
 
 import "./index.css";
 import { AuthProvider } from "./contexts/auth.tsx";
@@ -27,9 +28,12 @@ const router = createBrowserRouter(
       <Route path="posts/:id" element={<PostedPage />} />
       <Route path="posts/:id/edit" element={<PostingPage />} />
       <Route path="mypage" element={<MyPage />} />
+      <Route path="categories/:id" element={<MainPage />} />
       <Route path="category-daily" element={<MainPage />} />
       <Route path="category-qna" element={<MainPage />} />
       <Route path="category-study" element={<MainPage />} />
+      {/* 임시 관리자 페이지 - 카테고리 생성 */}
+      {/*<Route path="admin/init-categories" element={<InitCategoriesPage />} /> */}
     </Route>
   )
 );
