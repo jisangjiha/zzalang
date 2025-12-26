@@ -1,10 +1,10 @@
 import { useContext, useState, useEffect } from "react";
-import { AuthContext } from "../../contexts/auth-context";
-import { Category } from "../../types";
+import { AuthContext } from "../../../contexts/auth-context";
+import { Category } from "../../../types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-export default function InitCategoriesPage() {
+export default function CategoriesPage() {
   const { token } = useContext(AuthContext);
 
   const [categories, setCategories] = useState<Category[]>([]);
