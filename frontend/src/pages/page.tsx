@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import PostingButton from "../components/PostingButton";
 import PageButton from "../components/PageButton";
 import { Post, User } from "../types";
@@ -20,6 +20,7 @@ export default function MainPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const { categoryId } = useParams<{ categoryId?: string }>();
   const { categoryMap } = useContext(CategoryContext);
 
   // 페이지 관련 상태
@@ -65,8 +66,19 @@ export default function MainPage() {
   const fetchPosts = useCallback(async () => {
     setIsLoading(true);
     try {
+      // categoryId가 있으면 쿼리 파라미터에 추가
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        pageSize: pageSize.toString(),
+        order: order,
+      });
+
+      if (categoryId) {
+        params.append("categoryId", categoryId);
+      }
+
       const response = await fetch(
-        `${API_BASE_URL}/v1/posts?page=${currentPage}&pageSize=${pageSize}&order=${order}`
+        `${API_BASE_URL}/v1/posts?${params.toString()}`
       );
       if (!response.ok) {
         throw new Error(`status ${response.status}`);
@@ -95,17 +107,20 @@ export default function MainPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, fetchUserHandle, order, pageSize]);
+  }, [currentPage, fetchUserHandle, order, pageSize, categoryId]);
 
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
 
+  // 현재 카테고리 제목 가져오기
+  const currentCategoryTitle = categoryId ? categoryMap[categoryId] : null;
+
   return (
     <main className={styles.mainContainer}>
       <div className={styles.boardHeader}>
         <div className={styles.boardHeaderName}>
-          <h1>게시판</h1>
+          <h1>{currentCategoryTitle ? currentCategoryTitle : "전체 게시판"}</h1>
           <div>({totalPosts})</div>
         </div>
         <PostingButton text="+ 글쓰기" />
