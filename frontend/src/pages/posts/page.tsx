@@ -56,6 +56,7 @@ export default function PostingPage() {
   const [postingData, setPostingData] = useState({
     title: "",
     content: "",
+    categoryId: "",
   });
   const [currentCategory, setCurrentCategory] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
@@ -94,6 +95,7 @@ export default function PostingPage() {
         setPostingData({
           title: data.title,
           content: data.content,
+          categoryId: data.categoryId,
         });
         setCurrentCategory(data.categoryId);
       } catch {
