@@ -1,17 +1,37 @@
 import { Link } from "react-router-dom";
 import styles from "./Category.module.css";
-
-// 게시글 작성할 때 카테고리 선택할 수 있도록 해야 함
-// 백엔드 필요
-
-// 메인페이지 구성 어떻게 할 건지 기획 후 페이지 route 분리
+import { useState, useEffect } from "react";
+import type { Category } from "../../types";
 
 export default function Category() {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/v1/categories`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch categories");
+        }
+        const data = await response.json();
+        setCategories(data.categories);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, [API_BASE_URL]);
+
   return (
     <div className={styles.category}>
-      <Link to="/category-daily">일상 공유</Link>
-      <Link to="/category-qna">질문과 답변</Link>
-      <Link to="/category-study">스터디 모집</Link>
+      {categories.map((category) => (
+        <Link key={category.id} to={`/categories/${category.id}`}>
+          {category.title}
+        </Link>
+      ))}
     </div>
   );
 }

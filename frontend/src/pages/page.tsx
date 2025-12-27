@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import PostingButton from "../components/PostingButton";
 import PageButton from "../components/PageButton";
-import { Post, User } from "../types";
+import { Post, User, Category } from "../types";
 
 import styles from "./page.module.css";
 
@@ -13,11 +13,19 @@ interface PostsResponse {
 
 export default function MainPage() {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [userHandles, setUserHandles] = useState<Record<string, string>>({});
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  // 카테고리 id → title 매핑
+  const categoryMap = useMemo(
+    () => Object.fromEntries(categories.map((cat) => [cat.id, cat.title])),
+    [categories]
+  );
 
   // 페이지 관련 상태
   const [currentPage, setCurrentPage] = useState(1);
@@ -40,6 +48,25 @@ export default function MainPage() {
     }
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   })();
+
+  // 카테고리 목록 가져오기
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/v1/categories`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.categories.length > 0) {
+            setCategories(data.categories);
+          }
+        }
+      } catch (error) {
+        console.log("Failed to fetch categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, [API_BASE_URL]);
 
   // 사용자 정보를 가져오는 함수
   const fetchUserHandle = useCallback(
@@ -110,6 +137,7 @@ export default function MainPage() {
       {/* <section>인기글</section> */}
       <div className={styles.postSection}>
         <div className={styles.postHeaders}>
+          <div>게시판</div>
           <div>제목</div>
           <div>내용</div>
           <div>작성일</div>
@@ -125,6 +153,7 @@ export default function MainPage() {
                 className={styles.post}
                 onClick={() => navigate(`/posts/${post.id}`)}
               >
+                <div>{categoryMap[post.categoryId] || "기타"}</div>
                 <div>{post.title}</div>
                 <div>{stripHtml(post.content)}</div>
                 <div>{new Date(post.createdAt).toLocaleDateString()}</div>
