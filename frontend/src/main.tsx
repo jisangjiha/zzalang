@@ -17,6 +17,7 @@ import CategoriesPage from "./pages/admin/categories/page.tsx";
 
 import "./index.css";
 import { AuthProvider } from "./contexts/auth.tsx";
+import { CategoryProvider } from "./contexts/category-context.tsx";
 
 const router = createBrowserRouter(
   createRoutesFromChildren(
@@ -40,6 +41,8 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById("root")!).render(
   <AuthProvider>
-    <RouterProvider router={router} />
+    <CategoryProvider>
+      <RouterProvider router={router} />
+    </CategoryProvider>
   </AuthProvider>
 );

@@ -4,7 +4,8 @@ import ReactQuill from "react-quill";
 import type { ComponentType } from "react";
 
 import { AuthContext } from "../../contexts/auth-context";
-import { Post, Category } from "../../types";
+import { CategoryContext } from "../../contexts/category-context";
+import { Post } from "../../types";
 import PostingButton from "../../components/PostingButton";
 
 import styles from "../page.module.css";
@@ -41,6 +42,8 @@ export default function PostingPage() {
   const { id } = useParams<{ id: string }>();
   const { token } = useContext(AuthContext);
 
+  const { categories } = useContext(CategoryContext);
+
   // id가 truthy 값 → true 반환, falsy 값 → false 반환
   // id가 존재하고, 경로에 /edit이 포함되어 있으면 수정 모드로 판단
   const isEdit = useMemo(
@@ -52,7 +55,6 @@ export default function PostingPage() {
     title: "",
     content: "",
   });
-  const [categories, setCategories] = useState<Category[]>([]);
   const [currentCategory, setCurrentCategory] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
@@ -60,25 +62,12 @@ export default function PostingPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingPost, setIsLoadingPost] = useState(false);
 
-  // 카테고리 목록 가져오기
+  // 카테고리 초기값 설정
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/v1/categories`);
-        if (response.ok) {
-          const data = await response.json();
-          setCategories(data.categories);
-          if (data.categories.length > 0) {
-            setCurrentCategory(data.categories[0].id);
-          }
-        }
-      } catch (error) {
-        console.log("Failed to fetch categories:", error);
-      }
-    };
-
-    fetchCategories();
-  }, []);
+    if (categories.length > 0 && !currentCategory) {
+      setCurrentCategory(categories[0].id);
+    }
+  }, [categories, currentCategory]);
 
   useEffect(() => {
     if (!isEdit || !id) return;
