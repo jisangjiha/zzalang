@@ -7,6 +7,8 @@ import Category from "./Category";
 
 import styles from "./Header.module.css";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 type User = {
   id: string;
   name: string;
@@ -20,8 +22,6 @@ export default function Header() {
 
   const { token, clearToken } = useContext(AuthContext);
   const [user, setUser] = useState<User | null>(null);
-
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     if (!token) {

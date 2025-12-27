@@ -6,6 +6,8 @@ import { Post, User, Category } from "../types";
 
 import styles from "./page.module.css";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 interface PostsResponse {
   posts: Post[];
   total: number;
@@ -18,8 +20,6 @@ export default function MainPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   // 카테고리 id → title 매핑
   const categoryMap = useMemo(
@@ -66,7 +66,7 @@ export default function MainPage() {
     };
 
     fetchCategories();
-  }, [API_BASE_URL]);
+  }, []);
 
   // 사용자 정보를 가져오는 함수
   const fetchUserHandle = useCallback(
@@ -82,7 +82,7 @@ export default function MainPage() {
       }
       return "Unknown User";
     },
-    [API_BASE_URL]
+    []
   );
 
   // 게시글 목록을 가져오는 함수
@@ -119,7 +119,7 @@ export default function MainPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, API_BASE_URL, fetchUserHandle, order, pageSize]);
+  }, [currentPage, fetchUserHandle, order, pageSize]);
 
   useEffect(() => {
     fetchPosts();

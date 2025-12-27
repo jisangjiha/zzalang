@@ -3,9 +3,9 @@ import styles from "./Category.module.css";
 import { useState, useEffect } from "react";
 import type { Category } from "../../types";
 
-export default function Category() {
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+export default function Category() {
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
