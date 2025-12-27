@@ -33,6 +33,29 @@ export default function MainPage() {
   // HTML 태그 제거 함수
   const stripHtml = (html: string) => html.replace(/<[^>]*>/g, "");
 
+  // 첫 번째 줄만 가져오는 함수
+  const getFirstLine = (html: string) => {
+    // 블록 요소를 줄바꿈으로 변환
+    let text = html
+      .replace(/<\/p>/gi, "\n")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/div>/gi, "\n")
+      .replace(/<\/li>/gi, "\n")
+      .replace(/<\/h[1-6]>/gi, "\n");
+
+    // HTML 태그 제거
+    text = stripHtml(text);
+
+    // 줄바꿈으로 split해서 첫 번째 줄만 가져오기
+    const firstLine =
+      text
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0)[0] || "";
+
+    return firstLine;
+  };
+
   // 페이지 번호 계산 (현재 페이지 중심으로 최대 5개 노출)
   const pageNumbers = (() => {
     const windowSize = 5;
@@ -128,11 +151,11 @@ export default function MainPage() {
       {/* <section>인기글</section> */}
       <div className={styles.postSection}>
         <div className={styles.postHeaders}>
-          <div>게시판</div>
+          <div className={styles.postCategoryColumn}>게시판</div>
           <div>제목</div>
           <div>내용</div>
-          <div>작성일</div>
-          <div>작성자</div>
+          <div className={styles.postDateColumn}>작성일</div>
+          <div className={styles.postAuthorColumn}>작성자</div>
         </div>
         {isLoading ? (
           <div className={styles.loading}>Loading...</div>
@@ -144,15 +167,19 @@ export default function MainPage() {
                 className={styles.post}
                 onClick={() => navigate(`/posts/${post.id}`)}
               >
-                <div>
+                <div className={styles.postCategoryColumn}>
                   {categoryMap[post.categoryId] === "기본"
                     ? ""
                     : categoryMap[post.categoryId]}
                 </div>
                 <div>{post.title}</div>
-                <div>{stripHtml(post.content)}</div>
-                <div>{new Date(post.createdAt).toLocaleDateString()}</div>
-                <div>{userHandles[post.authorId] || "Loading..."}</div>
+                <div>{getFirstLine(post.content)}</div>
+                <div className={styles.postDateColumn}>
+                  {new Date(post.createdAt).toLocaleDateString()}
+                </div>
+                <div className={styles.postAuthorColumn}>
+                  {userHandles[post.authorId] || "Loading..."}
+                </div>
               </div>
             ))}
           </>
