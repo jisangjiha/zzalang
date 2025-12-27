@@ -4,13 +4,12 @@ import ReactQuill from "react-quill";
 import type { ComponentType } from "react";
 
 import { AuthContext } from "../../contexts/auth-context";
-import { Post } from "../../types";
+import { Post, Category } from "../../types";
 import PostingButton from "../../components/PostingButton";
 
 import styles from "../page.module.css";
 import "react-quill/dist/quill.snow.css";
 
-const CATEGORIES = ["일상 공유", "질문과 답변", "스터디 모집"] as const;
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 type QuillEditorProps = {
@@ -53,12 +52,33 @@ export default function PostingPage() {
     title: "",
     content: "",
   });
-  const [currentCategory, setCurrentCategory] = useState<string>(CATEGORIES[0]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [currentCategory, setCurrentCategory] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
   );
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingPost, setIsLoadingPost] = useState(false);
+
+  // 카테고리 목록 가져오기
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/v1/categories`);
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data.categories);
+          if (data.categories.length > 0) {
+            setCurrentCategory(data.categories[0].id);
+          }
+        }
+      } catch (error) {
+        console.log("Failed to fetch categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     if (!isEdit || !id) return;
@@ -84,6 +104,7 @@ export default function PostingPage() {
           title: data.title,
           content: data.content,
         });
+        setCurrentCategory(data.categoryId);
       } catch {
         setErrorMessage("네트워크 오류가 발생했습니다.");
       } finally {
@@ -137,6 +158,7 @@ export default function PostingPage() {
         body: JSON.stringify({
           title: postingData.title.trim(),
           content: postingData.content.trim(),
+          categoryId: currentCategory,
         }),
       });
 
@@ -177,9 +199,9 @@ export default function PostingPage() {
             onChange={handleCategoryChange}
             className={styles.postingSelect}
           >
-            {CATEGORIES.map((category) => (
-              <option key={category} value={category}>
-                {category}
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.title}
               </option>
             ))}
           </select>
@@ -200,7 +222,6 @@ export default function PostingPage() {
           placeholder="내용을 입력하세요"
         />
       </div>
-
       <div className={styles.postingFooter}>
         {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
         <PostingButton
