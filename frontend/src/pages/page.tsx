@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import PostingButton from "../components/PostingButton";
-import PageButton from "../components/PageButton";
+import Pagination from "../components/Pagination";
 import { Post, User } from "../types";
 import { CategoryContext } from "../contexts/category-context";
 
@@ -55,18 +55,6 @@ export default function MainPage() {
 
     return firstLine;
   };
-
-  // 페이지 번호 계산 (현재 페이지 중심으로 최대 5개 노출)
-  const pageNumbers = (() => {
-    const windowSize = 5;
-    const half = Math.floor(windowSize / 2);
-    let start = Math.max(1, currentPage - half);
-    const end = Math.min(totalPage, start + windowSize - 1);
-    if (end - start + 1 < windowSize) {
-      start = Math.max(1, end - windowSize + 1);
-    }
-    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-  })();
 
   // 사용자 정보를 가져오는 함수
   const fetchUserHandle = useCallback(
@@ -185,30 +173,11 @@ export default function MainPage() {
           </>
         )}
       </div>
-      <section className={styles.pagination}>
-        <PageButton
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-        >
-          ＜
-        </PageButton>
-        {pageNumbers.map((page) => (
-          <PageButton
-            key={page}
-            active={page === currentPage}
-            onClick={() => setCurrentPage(page)}
-            disabled={page === currentPage}
-          >
-            {page}
-          </PageButton>
-        ))}
-        <PageButton
-          disabled={currentPage >= totalPage}
-          onClick={() => setCurrentPage((p) => (p < totalPage ? p + 1 : p))}
-        >
-          ＞
-        </PageButton>
-      </section>
+      <Pagination
+        currentPage={currentPage}
+        totalPage={totalPage}
+        onPageChange={setCurrentPage}
+      />
     </main>
   );
 }
