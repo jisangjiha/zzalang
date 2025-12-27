@@ -1,10 +1,13 @@
-import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useState, useContext } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import PostingButton from "../components/PostingButton";
 import PageButton from "../components/PageButton";
 import { Post, User } from "../types";
+import { CategoryContext } from "../contexts/category-context";
 
 import styles from "./page.module.css";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface PostsResponse {
   posts: Post[];
@@ -13,11 +16,12 @@ interface PostsResponse {
 
 export default function MainPage() {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [userHandles, setUserHandles] = useState<Record<string, string>>({});
-  const navigate = useNavigate();
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+  const { categoryId } = useParams<{ categoryId?: string }>();
+  const { categoryMap } = useContext(CategoryContext);
 
   // 페이지 관련 상태
   const [currentPage, setCurrentPage] = useState(1);
@@ -28,6 +32,29 @@ export default function MainPage() {
 
   // HTML 태그 제거 함수
   const stripHtml = (html: string) => html.replace(/<[^>]*>/g, "");
+
+  // 첫 번째 줄만 가져오는 함수
+  const getFirstLine = (html: string) => {
+    // 블록 요소를 줄바꿈으로 변환
+    let text = html
+      .replace(/<\/p>/gi, "\n")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/div>/gi, "\n")
+      .replace(/<\/li>/gi, "\n")
+      .replace(/<\/h[1-6]>/gi, "\n");
+
+    // HTML 태그 제거
+    text = stripHtml(text);
+
+    // 줄바꿈으로 split해서 첫 번째 줄만 가져오기
+    const firstLine =
+      text
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0)[0] || "";
+
+    return firstLine;
+  };
 
   // 페이지 번호 계산 (현재 페이지 중심으로 최대 5개 노출)
   const pageNumbers = (() => {
@@ -55,15 +82,26 @@ export default function MainPage() {
       }
       return "Unknown User";
     },
-    [API_BASE_URL]
+    []
   );
 
   // 게시글 목록을 가져오는 함수
   const fetchPosts = useCallback(async () => {
     setIsLoading(true);
     try {
+      // categoryId가 있으면 쿼리 파라미터에 추가
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        pageSize: pageSize.toString(),
+        order: order,
+      });
+
+      if (categoryId) {
+        params.append("categoryId", categoryId);
+      }
+
       const response = await fetch(
-        `${API_BASE_URL}/v1/posts?page=${currentPage}&pageSize=${pageSize}&order=${order}`
+        `${API_BASE_URL}/v1/posts?${params.toString()}`
       );
       if (!response.ok) {
         throw new Error(`status ${response.status}`);
@@ -92,17 +130,20 @@ export default function MainPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, API_BASE_URL, fetchUserHandle, order, pageSize]);
+  }, [currentPage, fetchUserHandle, order, pageSize, categoryId]);
 
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
 
+  // 현재 카테고리 제목 가져오기
+  const currentCategoryTitle = categoryId ? categoryMap[categoryId] : null;
+
   return (
     <main className={styles.mainContainer}>
       <div className={styles.boardHeader}>
         <div className={styles.boardHeaderName}>
-          <h1>게시판</h1>
+          <h1>{currentCategoryTitle ? currentCategoryTitle : "전체 게시판"}</h1>
           <div>({totalPosts})</div>
         </div>
         <PostingButton text="+ 글쓰기" />
@@ -110,10 +151,11 @@ export default function MainPage() {
       {/* <section>인기글</section> */}
       <div className={styles.postSection}>
         <div className={styles.postHeaders}>
+          <div className={styles.postCategoryColumnHeader}>게시판</div>
           <div>제목</div>
           <div>내용</div>
-          <div>작성일</div>
-          <div>작성자</div>
+          <div className={styles.postDateColumn}>작성일</div>
+          <div className={styles.postAuthorColumn}>작성자</div>
         </div>
         {isLoading ? (
           <div className={styles.loading}>Loading...</div>
@@ -125,10 +167,19 @@ export default function MainPage() {
                 className={styles.post}
                 onClick={() => navigate(`/posts/${post.id}`)}
               >
+                <div className={styles.postCategoryColumn}>
+                  {categoryMap[post.categoryId] === "기본"
+                    ? ""
+                    : categoryMap[post.categoryId]}
+                </div>
                 <div>{post.title}</div>
-                <div>{stripHtml(post.content)}</div>
-                <div>{new Date(post.createdAt).toLocaleDateString()}</div>
-                <div>{userHandles[post.authorId] || "Loading..."}</div>
+                <div>{getFirstLine(post.content)}</div>
+                <div className={styles.postDateColumn}>
+                  {new Date(post.createdAt).toLocaleDateString()}
+                </div>
+                <div className={styles.postAuthorColumn}>
+                  {userHandles[post.authorId] || "Loading..."}
+                </div>
               </div>
             ))}
           </>

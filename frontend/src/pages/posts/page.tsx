@@ -4,13 +4,13 @@ import ReactQuill from "react-quill";
 import type { ComponentType } from "react";
 
 import { AuthContext } from "../../contexts/auth-context";
+import { CategoryContext } from "../../contexts/category-context";
 import { Post } from "../../types";
 import PostingButton from "../../components/PostingButton";
 
 import styles from "../page.module.css";
 import "react-quill/dist/quill.snow.css";
 
-const CATEGORIES = ["일상 공유", "질문과 답변", "스터디 모집"] as const;
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 type QuillEditorProps = {
@@ -41,6 +41,10 @@ export default function PostingPage() {
   const location = useLocation();
   const { id } = useParams<{ id: string }>();
   const { token } = useContext(AuthContext);
+  const { categories } = useContext(CategoryContext);
+
+  // 백엔드에서 최초에 만든 기본 카테고리 숨김
+  const visibleCategories = categories.filter((cat) => cat.title !== "기본");
 
   // id가 truthy 값 → true 반환, falsy 값 → false 반환
   // id가 존재하고, 경로에 /edit이 포함되어 있으면 수정 모드로 판단
@@ -52,13 +56,21 @@ export default function PostingPage() {
   const [postingData, setPostingData] = useState({
     title: "",
     content: "",
+    categoryId: "",
   });
-  const [currentCategory, setCurrentCategory] = useState<string>(CATEGORIES[0]);
+  const [currentCategory, setCurrentCategory] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
   );
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingPost, setIsLoadingPost] = useState(false);
+
+  // 카테고리 초기값 설정
+  useEffect(() => {
+    if (visibleCategories.length > 0 && !currentCategory) {
+      setCurrentCategory(visibleCategories[0].id);
+    }
+  }, [visibleCategories, currentCategory]);
 
   useEffect(() => {
     if (!isEdit || !id) return;
@@ -83,7 +95,9 @@ export default function PostingPage() {
         setPostingData({
           title: data.title,
           content: data.content,
+          categoryId: data.categoryId,
         });
+        setCurrentCategory(data.categoryId);
       } catch {
         setErrorMessage("네트워크 오류가 발생했습니다.");
       } finally {
@@ -137,6 +151,7 @@ export default function PostingPage() {
         body: JSON.stringify({
           title: postingData.title.trim(),
           content: postingData.content.trim(),
+          categoryId: currentCategory,
         }),
       });
 
@@ -177,9 +192,9 @@ export default function PostingPage() {
             onChange={handleCategoryChange}
             className={styles.postingSelect}
           >
-            {CATEGORIES.map((category) => (
-              <option key={category} value={category}>
-                {category}
+            {visibleCategories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.title}
               </option>
             ))}
           </select>
@@ -200,7 +215,6 @@ export default function PostingPage() {
           placeholder="내용을 입력하세요"
         />
       </div>
-
       <div className={styles.postingFooter}>
         {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
         <PostingButton

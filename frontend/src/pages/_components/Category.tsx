@@ -1,17 +1,21 @@
 import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { CategoryContext } from "../../contexts/category-context";
 import styles from "./Category.module.css";
 
-// 게시글 작성할 때 카테고리 선택할 수 있도록 해야 함
-// 백엔드 필요
-
-// 메인페이지 구성 어떻게 할 건지 기획 후 페이지 route 분리
-
 export default function Category() {
+  const { categories } = useContext(CategoryContext);
+
+  // 백엔드에서 최초에 만든 기본 카테고리 숨김
+  const visibleCategories = categories.filter((cat) => cat.title !== "기본");
+
   return (
     <div className={styles.category}>
-      <Link to="/category-daily">일상 공유</Link>
-      <Link to="/category-qna">질문과 답변</Link>
-      <Link to="/category-study">스터디 모집</Link>
+      {visibleCategories.map((category) => (
+        <Link key={category.id} to={`/categories/${category.id}`}>
+          {category.title}
+        </Link>
+      ))}
     </div>
   );
 }

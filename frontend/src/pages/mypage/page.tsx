@@ -5,6 +5,8 @@ import InputBox from "../../components/InputBox";
 
 import styles from "../page.module.css";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export default function MyPage() {
   const { token } = useContext(AuthContext);
   const [myData, setMyData] = useState({
@@ -24,8 +26,6 @@ export default function MyPage() {
       [field]: value,
     }));
   };
-
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/v1/me`, {

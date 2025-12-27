@@ -5,6 +5,7 @@ export interface Post {
   title: string;
   content: string;
   authorId: string;
+  categoryId: string;
 }
 
 export interface User {
@@ -13,4 +14,12 @@ export interface User {
   handle: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Category {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  title: string;
+  description: string;
 }

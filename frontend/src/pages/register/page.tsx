@@ -13,6 +13,8 @@ import styles from "../page.module.css";
 //개인정보 수정
 //회원가입, 로그인 시 입력 안될 때 안넘어가게
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export default function RegisterPage() {
   const navigate = useNavigate();
   const { setToken } = useContext(AuthContext);
@@ -26,8 +28,6 @@ export default function RegisterPage() {
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
   );
-
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   return (
     <form

@@ -8,6 +8,8 @@ import AuthLink from "../../components/AuthLink";
 
 import styles from "../page.module.css";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export default function LoginPage() {
   const navigate = useNavigate();
   const { setToken } = useContext(AuthContext);
@@ -19,8 +21,6 @@ export default function LoginPage() {
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
   );
-
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   return (
     <form
