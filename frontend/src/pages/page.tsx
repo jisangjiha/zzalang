@@ -144,7 +144,11 @@ export default function MainPage() {
                 className={styles.post}
                 onClick={() => navigate(`/posts/${post.id}`)}
               >
-                <div>{categoryMap[post.categoryId] || "기타"}</div>
+                <div>
+                  {categoryMap[post.categoryId] === "기본"
+                    ? ""
+                    : categoryMap[post.categoryId]}
+                </div>
                 <div>{post.title}</div>
                 <div>{stripHtml(post.content)}</div>
                 <div>{new Date(post.createdAt).toLocaleDateString()}</div>

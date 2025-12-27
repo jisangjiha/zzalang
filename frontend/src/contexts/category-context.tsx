@@ -26,7 +26,8 @@ export function CategoryProvider({ children }: { children: ReactNode }) {
         if (response.ok) {
           const data = await response.json();
           if (data.categories && data.categories.length > 0) {
-            setCategories(data.categories);
+            // 역순으로 정렬 (최신 카테고리가 앞에 오도록)
+            setCategories([...data.categories].reverse());
           }
         }
       } catch (error) {

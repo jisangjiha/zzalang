@@ -41,8 +41,10 @@ export default function PostingPage() {
   const location = useLocation();
   const { id } = useParams<{ id: string }>();
   const { token } = useContext(AuthContext);
-
   const { categories } = useContext(CategoryContext);
+
+  // 백엔드에서 최초에 만든 기본 카테고리 숨김
+  const visibleCategories = categories.filter((cat) => cat.title !== "기본");
 
   // id가 truthy 값 → true 반환, falsy 값 → false 반환
   // id가 존재하고, 경로에 /edit이 포함되어 있으면 수정 모드로 판단
@@ -64,10 +66,10 @@ export default function PostingPage() {
 
   // 카테고리 초기값 설정
   useEffect(() => {
-    if (categories.length > 0 && !currentCategory) {
-      setCurrentCategory(categories[0].id);
+    if (visibleCategories.length > 0 && !currentCategory) {
+      setCurrentCategory(visibleCategories[0].id);
     }
-  }, [categories, currentCategory]);
+  }, [visibleCategories, currentCategory]);
 
   useEffect(() => {
     if (!isEdit || !id) return;
@@ -188,7 +190,7 @@ export default function PostingPage() {
             onChange={handleCategoryChange}
             className={styles.postingSelect}
           >
-            {categories.map((category) => (
+            {visibleCategories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.title}
               </option>
