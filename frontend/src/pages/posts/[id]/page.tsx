@@ -5,6 +5,7 @@ import { Post, User } from "../../../types";
 import { AuthContext } from "../../../contexts/auth-context";
 import PostActionButton from "../../../components/PostActionButton";
 import styles from "../../page.module.css";
+import { CategoryContext } from "../../../contexts/category-context";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -28,6 +29,7 @@ export default function PostedPage() {
   const [post, setPost] = useState<Post | null>(null);
   const [authorHandle, setAuthorHandle] = useState<string>("");
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { categoryMap } = useContext(CategoryContext);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -203,9 +205,17 @@ export default function PostedPage() {
           )}
         </div>
         <div className={styles.postedInfo}>
-          <span>작성자: {authorHandle}</span>
-          <span>|</span>
-          <span>작성일: {new Date(post.createdAt).toLocaleDateString()}</span>
+          <span>
+            카테고리:{" "}
+            {categoryMap[post.categoryId] === "기본"
+              ? "선택 없음"
+              : categoryMap[post.categoryId]}
+          </span>
+          <div className={styles.postedInfoAuthorDate}>
+            <span>작성자: {authorHandle}</span>
+            <span>|</span>
+            <span>작성일: {new Date(post.createdAt).toLocaleDateString()}</span>
+          </div>
         </div>
         <div dangerouslySetInnerHTML={{ __html: post.content }} />
         {error && (

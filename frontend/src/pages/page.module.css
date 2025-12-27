@@ -198,8 +198,15 @@
 .postedInfo {
   display: flex;
   flex-direction: row;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 10px;
 
   color: var(--font-gray);
+}
+
+.postedInfoAuthorDate {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
 }
