@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 
 import { AuthContext } from "../../contexts/auth-context";
 import logo from "../../assets/casper.svg";
@@ -9,33 +9,10 @@ import styles from "./Header.module.css";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-type User = {
-  id: string;
-  name: string;
-  handle: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
 export default function Header() {
   const navigate = useNavigate();
 
-  const { token, clearToken } = useContext(AuthContext);
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    if (!token) {
-      setUser(null);
-      return;
-    }
-    fetch(`${API_BASE_URL}/v1/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((u) => setUser(u));
-  }, [token]);
+  const { token, user, clearToken } = useContext(AuthContext);
 
   const handleLogout = () => {
     fetch(`${API_BASE_URL}/v1/sign-out`, {
