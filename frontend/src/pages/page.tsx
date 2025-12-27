@@ -151,7 +151,7 @@ export default function MainPage() {
       {/* <section>인기글</section> */}
       <div className={styles.postSection}>
         <div className={styles.postHeaders}>
-          <div className={styles.postCategoryColumn}>게시판</div>
+          <div className={styles.postCategoryColumnHeader}>게시판</div>
           <div>제목</div>
           <div>내용</div>
           <div className={styles.postDateColumn}>작성일</div>
