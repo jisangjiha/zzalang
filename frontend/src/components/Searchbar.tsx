@@ -33,21 +33,27 @@ export default function Searchbar({ onSearch }: SearchbarProps) {
 
   return (
     <form className={styles.searchbar} onSubmit={handleSubmit}>
-      <select
-        value={type}
-        onChange={(e) => setType(e.target.value as SearchType)}
-      >
-        <option value="all">제목+내용</option>
-        <option value="title">제목</option>
-        <option value="content">내용</option>
-      </select>
-      <input
-        type="text"
-        placeholder="검색어를 입력하세요"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <button type="submit">검색</button>
+      <div className={styles.searchbarContent}>
+        <select
+          value={type}
+          className={styles.searchType}
+          onChange={(e) => setType(e.target.value as SearchType)}
+        >
+          <option value="all">제목+내용</option>
+          <option value="title">제목</option>
+          <option value="content">내용</option>
+        </select>
+        <input
+          type="text"
+          placeholder="검색어를 입력하세요"
+          value={search}
+          className={styles.searchInput}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+      <button type="submit" className={styles.searchButton}>
+        검색
+      </button>
     </form>
   );
 }
