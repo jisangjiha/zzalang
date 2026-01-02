@@ -1,17 +1,23 @@
 import { useCallback, useEffect, useState, useContext } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import PostingButton from "../components/PostingButton";
-import PageButton from "../components/PageButton";
+import Pagination from "../components/Pagination";
 import { Post, User } from "../types";
 import { CategoryContext } from "../contexts/category-context";
 
 import styles from "./page.module.css";
+import Searchbar from "../components/Searchbar";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface PostsResponse {
   posts: Post[];
   total: number;
+}
+
+interface SearchPostsResponse {
+  posts: Post[];
+  cursor?: string;
 }
 
 export default function MainPage() {
@@ -21,7 +27,12 @@ export default function MainPage() {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { categoryId } = useParams<{ categoryId?: string }>();
+  const [searchParams] = useSearchParams();
   const { categoryMap } = useContext(CategoryContext);
+
+  // URL에서 검색 쿼리 가져오기
+  const searchQuery = searchParams.get("q");
+  const searchType = searchParams.get("type") || "all";
 
   // 페이지 관련 상태
   const [currentPage, setCurrentPage] = useState(1);
@@ -56,18 +67,6 @@ export default function MainPage() {
     return firstLine;
   };
 
-  // 페이지 번호 계산 (현재 페이지 중심으로 최대 5개 노출)
-  const pageNumbers = (() => {
-    const windowSize = 5;
-    const half = Math.floor(windowSize / 2);
-    let start = Math.max(1, currentPage - half);
-    const end = Math.min(totalPage, start + windowSize - 1);
-    if (end - start + 1 < windowSize) {
-      start = Math.max(1, end - windowSize + 1);
-    }
-    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-  })();
-
   // 사용자 정보를 가져오는 함수
   const fetchUserHandle = useCallback(
     async (userId: string): Promise<string> => {
@@ -89,32 +88,72 @@ export default function MainPage() {
   const fetchPosts = useCallback(async () => {
     setIsLoading(true);
     try {
-      // categoryId가 있으면 쿼리 파라미터에 추가
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        pageSize: pageSize.toString(),
-        order: order,
-      });
+      let response;
+      let postsData: Post[];
+      let total: number;
 
-      if (categoryId) {
-        params.append("categoryId", categoryId);
+      // 검색 모드
+      if (searchQuery) {
+        const params = new URLSearchParams({
+          query: searchQuery,
+          pageSize: pageSize.toString(),
+          order: order,
+        });
+
+        response = await fetch(
+          `${API_BASE_URL}/v1/search/posts?${params.toString()}`
+        );
+        if (!response.ok) {
+          throw new Error(`status ${response.status}`);
+        }
+
+        const data: SearchPostsResponse = await response.json();
+
+        // 검색 타입에 따라 검색 결과 필터링
+        if (searchType === "title") {
+          postsData = data.posts.filter((post) =>
+            post.title.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+        } else if (searchType === "content") {
+          postsData = data.posts.filter((post) =>
+            post.content.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+        } else {
+          // default값 all
+          postsData = data.posts;
+        }
+
+        total = postsData.length;
+      }
+      // 일반 목록 모드
+      else {
+        const params = new URLSearchParams({
+          page: currentPage.toString(),
+          pageSize: pageSize.toString(),
+          order: order,
+        });
+
+        if (categoryId) {
+          params.append("categoryId", categoryId);
+        }
+
+        response = await fetch(`${API_BASE_URL}/v1/posts?${params.toString()}`);
+        if (!response.ok) {
+          throw new Error(`status ${response.status}`);
+        }
+
+        const data: PostsResponse = await response.json();
+        postsData = data.posts;
+        total = data.total;
       }
 
-      const response = await fetch(
-        `${API_BASE_URL}/v1/posts?${params.toString()}`
-      );
-      if (!response.ok) {
-        throw new Error(`status ${response.status}`);
-      }
-
-      const data: PostsResponse = await response.json();
-      setPosts(data.posts);
-      setTotalPosts(data.total);
+      setPosts(postsData);
+      setTotalPosts(total);
 
       // 각 게시글의 작성자 handle을 가져오기
       const handles: Record<string, string> = {};
       const uniqueUserIds = [
-        ...new Set(data.posts.map((post) => post.authorId)),
+        ...new Set(postsData.map((post) => post.authorId)),
       ];
 
       await Promise.all(
@@ -130,7 +169,15 @@ export default function MainPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, fetchUserHandle, order, pageSize, categoryId]);
+  }, [
+    currentPage,
+    fetchUserHandle,
+    order,
+    pageSize,
+    categoryId,
+    searchQuery,
+    searchType,
+  ]);
 
   useEffect(() => {
     fetchPosts();
@@ -185,30 +232,12 @@ export default function MainPage() {
           </>
         )}
       </div>
-      <section className={styles.pagination}>
-        <PageButton
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-        >
-          ＜
-        </PageButton>
-        {pageNumbers.map((page) => (
-          <PageButton
-            key={page}
-            active={page === currentPage}
-            onClick={() => setCurrentPage(page)}
-            disabled={page === currentPage}
-          >
-            {page}
-          </PageButton>
-        ))}
-        <PageButton
-          disabled={currentPage >= totalPage}
-          onClick={() => setCurrentPage((p) => (p < totalPage ? p + 1 : p))}
-        >
-          ＞
-        </PageButton>
-      </section>
+      <Pagination
+        currentPage={currentPage}
+        totalPage={totalPage}
+        onPageChange={setCurrentPage}
+      />
+      <Searchbar />
     </main>
   );
 }

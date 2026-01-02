@@ -92,16 +92,6 @@
   padding: 20px 0;
 }
 
-.pagination {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-
-  margin-top: 10px;
-}
-
 /* Posting */
 .postingContainer {
   height: 80%;
