@@ -1,4 +1,4 @@
-# 👻 zzalng
+# 👻 zzalang
 <img src="https://github.com/user-attachments/assets/de5720b2-0027-4b46-8501-0098c4adaa49"></img>
 
 ## 프로젝트 소개
